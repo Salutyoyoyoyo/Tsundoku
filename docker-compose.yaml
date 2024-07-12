@@ -1,0 +1,77 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    working_dir: /www
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/config/config.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www/backend:delegated
+    depends_on:
+      - php
+    networks:
+      - dev
+
+  php:
+    build: ./docker/php/
+    container_name: php
+    volumes:
+      - ./backend:/var/www/backend:delegated
+      - ./backend/var:/www/backend/var:delegated
+      - ./backend/vendor:/www/backend/vendor:delegated
+      - ./docker/php/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini
+    networks:
+      - dev
+
+  nextjs:
+    build:
+      context: .
+      dockerfile: docker/nextjs/Dockerfile
+    container_name: nextjs
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - dev
+
+  postgres:
+    build: ./docker/db/postgres/
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - dev
+
+  redis:
+    build: ./docker/db/redis/
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - dev
+
+  composer_sf:
+    image: composer:2.5.8
+    container_name: composer_sf
+    working_dir: /www/backend
+    volumes:
+      - ./backend:/www/backend
+      - ./docker/composer/cache:/tmp/cache
+    tty: true
+    stdin_open: true
+    command: [ "bash" ]
+
+volumes:
+  db-data:
+  redis-data:
+
+networks:
+  dev:
+    driver: bridge

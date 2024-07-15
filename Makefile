@@ -61,3 +61,4 @@ cache-clear:
 # make make-entity entity=User - create a Symfony entity
 # make make-migration - create a migration
 # make migrate - execute migrations
+# make cache-clear - empty the Symfony cache

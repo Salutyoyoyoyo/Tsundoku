@@ -37,16 +37,32 @@ composer-require:
 
 # Symfony commands
 make-entity:
-	$(COMPOSE) exec $(PHP_SERVICE) php bin/console make:entity $(entity)
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console make:entity $(entity)
 
 make-migration:
-	$(COMPOSE) exec $(PHP_SERVICE) php bin/console make:migration
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console make:migration
 
 migrate:
-	$(COMPOSE) exec $(PHP_SERVICE) php bin/console doctrine:migrations:migrate --no-interaction
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:migrations:migrate --no-interaction
 
 cache-clear:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console cache:clear
+
+# Doctrine commands
+create-database:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:database:create --if-not-exists
+
+drop-database:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:database:drop --force
+
+create-schema:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:schema:create
+
+update-schema:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:schema:update --force
+
+validate-schema:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:schema:validate
 
 # Use:
 # make build - build containers
@@ -62,3 +78,8 @@ cache-clear:
 # make make-migration - create a migration
 # make migrate - execute migrations
 # make cache-clear - empty the Symfony cache
+# make create-database - create the database
+# make drop-database - drop the database
+# make create-schema - create the database schema
+# make update-schema - update the database schema
+# make validate-schema - validate the database schema

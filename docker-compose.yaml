@@ -21,6 +21,8 @@ services:
       - ./backend/var:/www/backend/var:delegated
       - ./backend/vendor:/www/backend/vendor:delegated
       - ./docker/php/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini
+    depends_on:
+      - postgres
     networks:
       - dev
 
@@ -58,7 +60,7 @@ services:
       - dev
 
   composer_sf:
-    image: composer:2.5.8
+    build: ./docker/php/
     container_name: composer_sf
     working_dir: /www/backend
     volumes:
@@ -67,6 +69,14 @@ services:
     tty: true
     stdin_open: true
     command: [ "bash" ]
+    env_file:
+      - ./backend/.env
+      - ./backend/.env.local
+    depends_on:
+      - postgres
+      - php
+    networks:
+      - dev
 
 volumes:
   db-data:

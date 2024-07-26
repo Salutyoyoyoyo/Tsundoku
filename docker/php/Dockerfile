@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     vim \
     postgresql-client \
     libpq-dev \
+    git \
+    zip \
+    unzip \
     && docker-php-ext-install pdo pdo_pgsql \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -19,3 +22,6 @@ COPY . .
 # Donner les droits nécessaires
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
+
+# Pour interagir avec le conteneur
+CMD ["php-fpm"]

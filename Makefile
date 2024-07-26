@@ -64,6 +64,9 @@ update-schema:
 validate-schema:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:schema:validate
 
+fixtures:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:fixtures:load --no-interaction
+
 # Use:
 # make build - build containers
 # make up - start containers
@@ -83,3 +86,4 @@ validate-schema:
 # make create-schema - create the database schema
 # make update-schema - update the database schema
 # make validate-schema - validate the database schema
+# make fixtures - load fixtures into the database

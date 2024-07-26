@@ -1,11 +1,14 @@
-FROM postgres:16-alpine
+FROM postgres:13
 
-ENV POSTGRES_USER=root
-ENV POSTGRES_PASSWORD=root
-ENV POSTGRES_DB=postgres
+# Variables d'environnement pour la configuration de Postgres
+ENV POSTGRES_DB=tsundoku_postgres
+ENV POSTGRES_HOST=localhost
+ENV POSTGRES_USER=54j48gyFJt7BFv-user
+ENV POSTGRES_PASSWORD=t7Fy5B84vJFg4j
+ENV POSTGRES_PORT=5432
 
-# Exposer le port 5432 pour PostgreSQL
+# port Postgres
 EXPOSE 5432
 
-# Commande par défaut pour démarrer PostgreSQL
+# Commande pour démarrer Postgres
 CMD ["postgres"]

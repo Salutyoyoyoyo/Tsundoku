@@ -1,5 +1,5 @@
 # Name of Docker Compose services
-COMPOSE=docker-compose
+COMPOSE=docker compose
 PHP_SERVICE=php
 COMPOSER_SERVICE=composer_sf
 

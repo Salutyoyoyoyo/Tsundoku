@@ -19,7 +19,7 @@ class Profile
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $role = null;
+    private ?string $role = 'ROLE_USER';
 
     #[ORM\Column(length: 255)]
     private ?string $firstName = null;
@@ -53,6 +53,12 @@ class Profile
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
+
+    public function  __construct()
+    {
+        $this->role = 'ROLE_USER';
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

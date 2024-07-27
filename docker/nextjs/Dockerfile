@@ -1,13 +1,13 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
-COPY ../../frontend/package.json  ../../frontend/package-lock.json ./
+COPY ../../frontend/package.json ../../frontend/package-lock.json ./
 
 RUN npm install
 
-COPY . .
+COPY ../../frontend .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

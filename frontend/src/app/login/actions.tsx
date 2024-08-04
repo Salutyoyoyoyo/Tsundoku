@@ -25,27 +25,16 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
 
         const data = await response.json();
 
-        console.log('data :', data)
-
-        const user = {
-            id: data.id,
-            firstName: data.firstName,
-            email: data.email,
-            roles: data.roles
-        };
-
         const token = data.token;
-        await createSession(user, token);
+        await createSession(token);
 
         return {
             success: true,
-            userData: user,
             token: data.token,
         };
 
     } catch (error: any) {
         let errorMessage;
-        console.log('test :',  error)
 
         if (error instanceof Response) {
             if (400 === error.status) {

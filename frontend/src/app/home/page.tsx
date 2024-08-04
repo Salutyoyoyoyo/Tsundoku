@@ -8,7 +8,7 @@ export default function Home() {
 
     return (
         <main>
-            <h1>Welcome Home {user.firstName}!</h1>
+            <h1>Welcome Home!</h1>
             <LogoutButton />
         </main>
     );

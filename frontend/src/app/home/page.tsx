@@ -1,6 +1,6 @@
 'use client';
 
-import LogoutButton from "@/app/components/logoutButton";
+import LogoutButton from "@/components/logoutButton";
 import { useAuthContext } from "@/context/authContext";
 
 export default function Home() {

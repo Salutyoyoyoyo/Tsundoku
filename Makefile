@@ -22,18 +22,18 @@ logs:
 	$(COMPOSE) logs -f
 
 # Accessing containers
-php-sh:
-	$(COMPOSE) exec $(PHP_SERVICE) sh
+php-bash:
+	$(COMPOSE) exec $(PHP_SERVICE) bash
 
-composer-sh:
-	$(COMPOSE) exec $(COMPOSER_SERVICE) sh
+composer-bash:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) bash
 
 # Composer commands
 composer-install:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) composer install
 
 composer-require:
-	$(COMPOSE) exec $(COMPOSER_SERVICE) composer require $(package)
+	$(COMPOSE) exec $(PHP_SERVICE) composer require $(package)
 
 # Symfony commands
 make-entity:

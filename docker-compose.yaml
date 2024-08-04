@@ -38,6 +38,8 @@ services:
       - /app/node_modules
     networks:
       - dev
+    environment:
+      - SYMFONY_URL=http://nginx:80
 
   postgres:
     build: ./docker/db/postgres/

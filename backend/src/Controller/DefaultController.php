@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DefaultController extends AbstractController
 {
     #[Route('/home', name: 'app_home')]
-    public function home(): Response
+    public function index(): Response
     {
         return new JsonResponse(['success' => true]);
     }

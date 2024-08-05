@@ -2,6 +2,7 @@
 COMPOSE=docker compose
 PHP_SERVICE=php
 COMPOSER_SERVICE=composer_sf
+NEXTJS_SERVICE=nextjs
 
 # Environment variables
 ENV_FILE=.env
@@ -28,6 +29,9 @@ php-bash:
 composer-bash:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) bash
 
+nextjs-bash:
+	$(COMPOSE) exec -it $(NEXTJS_SERVICE) bash
+
 # Composer commands
 composer-install:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) composer install
@@ -47,6 +51,9 @@ migrate:
 
 cache-clear:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console cache:clear
+
+debug-router:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console debug:router
 
 # Doctrine commands
 create-database:
@@ -81,6 +88,7 @@ fixtures:
 # make make-migration - create a migration
 # make migrate - execute migrations
 # make cache-clear - empty the Symfony cache
+# make debug-router - list all Symfony routes
 # make create-database - create the database
 # make drop-database - drop the database
 # make create-schema - create the database schema

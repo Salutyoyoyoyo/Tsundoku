@@ -31,9 +31,9 @@ export async function decrypt(session: any) {
     }
 };
 
-export async function createSession(token: string): Promise<void> {
+export async function createSession(token: string, refreshToken: string): Promise<void> {
     const expires = new Date(Date.now() + cookieConfig.duration);
-    const session = await encrypt({token, expires});
+    const session = await encrypt({token, refreshToken, expires});
     cookies().set(cookieConfig.name, session, {expires, httpOnly: true});
 };
 
@@ -45,7 +45,7 @@ export async function getSession() {
 export async function verifySession(): Promise<{ userData: JWTPayload }> {
     const cookie = cookies().get(cookieConfig.name)?.value;
     const session = await decrypt(cookie);
-    if (!session || !session.token) return redirect('/');
+    if (!session || !session.token || !session.refreshToken) return redirect('/');
 
     return {userData: session};
 };

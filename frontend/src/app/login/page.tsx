@@ -7,15 +7,13 @@ import {HandleLogin} from "@/app/login/actions";
 import {useAuthContext} from "@/context/authContext";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState<string>('');
+    const [email, setEmail] = useState('admin@admin.com');
+    const [password, setPassword] = useState<string>('testtest');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
-    const {setIsAuthenticated, setUser} = useAuthContext();
+    const {setIsAuthenticated} = useAuthContext();
     const router = useRouter();
-
-    console.log(errMsg)
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -24,7 +22,6 @@ export default function LoginPage() {
         const response = await HandleLogin(email, password);
         if (response.success) {
             setIsAuthenticated(true);
-            setUser(response.userData);
 
             setEmail('');
             setPassword('');

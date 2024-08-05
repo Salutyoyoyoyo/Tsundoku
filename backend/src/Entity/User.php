@@ -24,9 +24,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $token = null;
-
     #[ORM\OneToMany(targetEntity: Profile::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $profiles;
 
@@ -60,18 +57,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
-        return $this;
-    }
-
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-
-    public function setToken(string $token): static
-    {
-        $this->token = $token;
 
         return $this;
     }

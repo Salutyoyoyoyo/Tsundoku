@@ -12,7 +12,7 @@ const LogoutButton = () => {
             setIsAuthenticated(false);
             setUser(null);
         } catch (error) {
-            throw new Error('Failed to Logout');
+            throw ('Failed to Logout');
         }
     };
 

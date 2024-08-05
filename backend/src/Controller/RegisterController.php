@@ -24,7 +24,7 @@ class RegisterController extends AbstractController {
 
         $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
         if ($existingUser) {
-            return new JsonResponse(['error' => 'Email already in use'], JsonResponse::HTTP_BAD_REQUEST);
+            return new JsonResponse(['error' => 'Email already in use'], JsonResponse::HTTP_CONFLICT);
         }
 
         $entityManager->persist($user);

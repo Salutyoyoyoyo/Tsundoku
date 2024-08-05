@@ -38,11 +38,11 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
         let errorMessage;
 
         if (error instanceof Response) {
-            if (400 === error.status) {
+            if (400 === error?.status) {
                 errorMessage = 'Missing Email or Password';
-            } else if (401 === error.status) {
+            } else if (401 === error?.status) {
                 errorMessage = 'Unauthorized';
-            } else if (500 === error.status) {
+            } else if (500 === error?.status) {
                 errorMessage = 'No Server Response';
             } else {
                 errorMessage = 'Login failed';

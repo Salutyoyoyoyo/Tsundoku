@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
@@ -7,11 +7,13 @@ import {HandleLogin} from "@/app/login/actions";
 import {useAuthContext} from "@/context/authContext";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('admin@admin.com');
-    const [password, setPassword] = useState<string>('testtest');
+    const [email, setEmail] = useState<string>('');
+    const [pwd, setPwd] = useState<string>('');
+
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
+
     const {setIsAuthenticated} = useAuthContext();
     const router = useRouter();
 
@@ -19,12 +21,12 @@ export default function LoginPage() {
         e.preventDefault();
         setErrMsg(null);
 
-        const response = await HandleLogin(email, password);
+        const response = await HandleLogin(email, pwd);
         if (response.success) {
             setIsAuthenticated(true);
 
             setEmail('');
-            setPassword('');
+            setPwd('');
             setSuccess(true);
             setErrMsg(null);
         } else {
@@ -37,7 +39,7 @@ export default function LoginPage() {
             {success ? (
                 router.push('/home')
             ) : (
-                <div>
+                <section>
                     <h1>Bienvenue</h1>
                     {errMsg && (
                         <div>
@@ -61,8 +63,8 @@ export default function LoginPage() {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Mot de passe"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                value={pwd}
+                                onChange={(e) => setPwd(e.target.value)}
                                 required
                             />
                             <div onClick={() => setShowPassword(!showPassword)}>
@@ -74,7 +76,7 @@ export default function LoginPage() {
                             <ArrowRight/>
                         </button>
                     </form>
-                </div>
+                </section>
             )}
         </>
     );

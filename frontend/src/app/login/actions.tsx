@@ -26,7 +26,8 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
         const data = await response.json();
 
         const token = data.token;
-        await createSession(token);
+        const refreshToken = data.refresh_token
+        await createSession(token, refreshToken);
 
         return {
             success: true,

@@ -1,4 +1,5 @@
 import { useAuthContext } from "@/context/authContext";
+import { isTokenExpired, refreshAuthToken } from "@/services/refreshService";
 
 interface FetchOptions extends RequestInit {
     headers?: {
@@ -8,6 +9,8 @@ interface FetchOptions extends RequestInit {
 
 export const useFetchWithAuth = async (url: string | URL | Request, options: FetchOptions = {}) => {
     const { token } = useAuthContext();
+
+    await useRefreshIfNeeded();
 
     const headers: { [key: string]: string } = {
         'Content-Type': 'application/json',
@@ -28,4 +31,16 @@ export const useFetchWithAuth = async (url: string | URL | Request, options: Fet
         console.error(!response.ok);
     }
     return response.json();
+};
+
+export const useRefreshIfNeeded = async () => {
+    const { setToken } = useAuthContext();
+    const refreshToken = await isTokenExpired();
+
+    if (refreshToken) {
+        const newToken = await refreshAuthToken(refreshToken);
+        if (newToken) {
+            setToken(newToken);
+        }
+    }
 };

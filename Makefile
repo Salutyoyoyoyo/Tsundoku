@@ -52,6 +52,9 @@ migrate:
 cache-clear:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console cache:clear
 
+debug-router:
+	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console debug:router
+
 # Doctrine commands
 create-database:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) php bin/console doctrine:database:create --if-not-exists
@@ -85,6 +88,7 @@ fixtures:
 # make make-migration - create a migration
 # make migrate - execute migrations
 # make cache-clear - empty the Symfony cache
+# make debug-router - list all Symfony routes
 # make create-database - create the database
 # make drop-database - drop the database
 # make create-schema - create the database schema

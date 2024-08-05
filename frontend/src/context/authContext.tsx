@@ -17,17 +17,15 @@ export function AuthProvider({children}: {
     children: React.ReactNode;
 }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState({});
     const [token, setToken] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    console.log('token from context :', token);
+
     useEffect(() => {
         const checkAuthBySession = async () => {
             try {
                 const session = await getSession();
-                if (session && session.userData) {
+                if (session && session.token) {
                     setIsAuthenticated(true);
-                    setUser(session.userData);
                     setToken(session.token as string);
                     setError(null);
                 } else {
@@ -41,7 +39,7 @@ export function AuthProvider({children}: {
     }, []);
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated, user, setUser, token, setToken}}>
+        <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated, token, setToken}}>
             {children}
         </AuthContext.Provider>
     )

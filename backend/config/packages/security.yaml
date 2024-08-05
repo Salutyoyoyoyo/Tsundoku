@@ -12,6 +12,12 @@ security:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
+    refresh:
+      pattern: ^/api/token/refresh
+      stateless: true
+      provider: user_provider
+      refresh_jwt:
+        check_path: /api/token/refresh
     login:
       pattern: ^/api/login
       provider: user_provider
@@ -40,6 +46,7 @@ security:
     - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/modo, roles: [ ROLE_ADMIN, ROLE_MODO ] }
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
 
 when@test:
   security:

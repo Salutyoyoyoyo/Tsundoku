@@ -2,6 +2,7 @@
 COMPOSE=docker compose
 PHP_SERVICE=php
 COMPOSER_SERVICE=composer_sf
+NEXTJS_SERVICE=nextjs
 
 # Environment variables
 ENV_FILE=.env
@@ -27,6 +28,9 @@ php-bash:
 
 composer-bash:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) bash
+
+nextjs-bash:
+	$(COMPOSE) exec -it $(NEXTJS_SERVICE) bash
 
 # Composer commands
 composer-install:

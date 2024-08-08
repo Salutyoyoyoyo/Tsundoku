@@ -1,20 +1,21 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {cookies} from "next/headers";
-import {decrypt} from "@/app/_lib/session";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export default async function middleware(req: NextRequest) {
-    const protectedRoutes = ['/home'];
+    const protectedRoutes = ['/home',  '/error/unverified'];
+    const unprotectedRoutes = ['/login', '/register'];
+
     const currentPath = req.nextUrl.pathname;
-    const isProtectedRoute = protectedRoutes.includes(currentPath);
+    const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
+    const isUnprotectedRoute = unprotectedRoutes.some(route => currentPath.startsWith(route));
 
-    if (isProtectedRoute) {
+    if (isProtectedRoute && !isUnprotectedRoute) {
         const cookie = cookies().get('session')?.value;
-        const session = await decrypt(cookie);
-
-        if (!session?.userId) {
-            return NextResponse.redirect(new URL('/', req.nextUrl));
+        if (!cookie) {
+            return NextResponse.redirect(new URL('/login', req.nextUrl));
         }
     }
+
     return NextResponse.next();
 }
 

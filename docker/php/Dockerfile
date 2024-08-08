@@ -11,9 +11,12 @@ RUN apt-get update && apt-get install -y \
     git \
     zip \
     unzip \
+    dnsutils \
     && docker-php-ext-install pdo pdo_pgsql \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN nslookup raw.githubusercontent.com
 
 WORKDIR /var/www/html
 

@@ -52,5 +52,5 @@ export async function verifySession(): Promise<{ userData: JWTPayload }> {
 
 export async function deleteSession(): Promise<void> {
     cookies().delete(cookieConfig.name);
-    redirect('/login');
+    redirect('/auth/login');
 }

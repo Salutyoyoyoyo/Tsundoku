@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 export default async function middleware(req: NextRequest) {
     const protectedRoutes = ['/home',  '/error/unverified'];
-    const unprotectedRoutes = ['/login', '/register'];
+    const unprotectedRoutes = ['/auth/login', '/auth/register'];
 
     const currentPath = req.nextUrl.pathname;
     const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
@@ -12,7 +12,7 @@ export default async function middleware(req: NextRequest) {
     if (isProtectedRoute && !isUnprotectedRoute) {
         const cookie = cookies().get('session')?.value;
         if (!cookie) {
-            return NextResponse.redirect(new URL('/login', req.nextUrl));
+            return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
         }
     }
 

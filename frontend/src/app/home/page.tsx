@@ -22,7 +22,7 @@ export default function Home() {
         if (isAuthenticated) {
             verifyUser();
         } else {
-            router.push('/login');
+            router.push('/auth/login');
         }
     }, [isAuthenticated, user, router]);
 

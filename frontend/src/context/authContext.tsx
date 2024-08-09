@@ -59,7 +59,7 @@ export function AuthProvider({children}: {
         setIsAuthenticated(false);
         setUser(null);
         setToken(null);
-        router.push('/login');
+        router.push('/auth/login');
     };
 
     return (

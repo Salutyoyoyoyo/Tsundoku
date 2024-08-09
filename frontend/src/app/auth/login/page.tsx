@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, User, Lock, OctagonAlert, ArrowRight } from "lucide-react";
-import { HandleLogin } from "@/app/login/actions";
+import { HandleLogin } from "@/app/auth/login/actions";
 import { useAuthContext } from "@/context/authContext";
 
 export default function LoginPage() {
@@ -37,11 +37,19 @@ export default function LoginPage() {
     };
 
     const handleRegisterRedirect = () => {
-        router.push('/register');
+        router.push('/auth/register');
     };
 
     const handleForgotPasswordRedirect = () => {
-        router.push('/forgot-password');
+        router.push('/auth/forgot-password');
+    };
+
+    const handlePrivacyPolicyRedirect = () => {
+        router.push('/policy/privacy-policy');
+    };
+
+    const handleTermsRedirect = () => {
+        router.push('/policy/terms-of-service');
     };
 
     return (
@@ -50,14 +58,14 @@ export default function LoginPage() {
                 <h1 className="text-2xl font-bold mb-6 text-center">Bienvenue</h1>
                 {errMsg && (
                     <div className="flex items-center bg-red-100 text-red-700 p-4 mb-4 rounded-md">
-                        <OctagonAlert className="mr-2" />
+                        <OctagonAlert className="mr-2"/>
                         <span>{errMsg}</span>
                     </div>
                 )}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-gray-700">
-                            <User className="inline-block mr-2" />
+                            <User className="inline-block mr-2"/>
                             Email
                         </label>
                         <input
@@ -71,7 +79,7 @@ export default function LoginPage() {
                     </div>
                     <div className="mb-6">
                         <label className="block text-gray-700">
-                            <Lock className="inline-block mr-2" />
+                            <Lock className="inline-block mr-2"/>
                             Mot de passe
                         </label>
                         <div className="relative">
@@ -87,7 +95,7 @@ export default function LoginPage() {
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
-                                {showPassword ? <EyeOff /> : <Eye />}
+                                {showPassword ? <EyeOff/> : <Eye/>}
                             </div>
                         </div>
                     </div>
@@ -96,7 +104,7 @@ export default function LoginPage() {
                         className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
                     >
                         Se connecter
-                        <ArrowRight className="inline-block ml-2" />
+                        <ArrowRight className="inline-block ml-2"/>
                     </button>
                 </form>
                 <button
@@ -112,6 +120,23 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                 </button>
             </div>
+                <div className="text-center mt-6">
+                    <a
+                        href="#"
+                        onClick={handlePrivacyPolicyRedirect}
+                        className="text-blue-500 hover:underline"
+                    >
+                        Politique de confidentialité
+                    </a>
+                    &nbsp;|&nbsp;
+                    <a
+                        href="#"
+                        onClick={handleTermsRedirect}
+                        className="text-blue-500 hover:underline"
+                    >
+                        Conditions générales
+                    </a>
+                </div>
         </section>
     );
 }

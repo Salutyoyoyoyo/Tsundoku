@@ -40,12 +40,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isVerified = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetPwdToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $resetPwdTokenLifetime = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastPasswordResetRequest = null;
+
     public function __construct()
     {
         $this->profiles = new ArrayCollection();
         $this->createdAt = new \DateTime('now');
         $this->isVerified = false;
         $this->tokenRegistrationLifetime = (new \DateTime('now'))->add(new \DateInterval('P1D'));
+        $this->ResetPwdTokenLifetime = (new \DateTime('now'))->add(new \DateInterval('PT1H'));
+        $this->LastPasswordResetRequest = (new \DateTime('now'));
     }
 
     public function getId(): ?int
@@ -166,6 +177,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $profile->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getResetPwdToken(): ?string
+    {
+        return $this->resetPwdToken;
+    }
+
+    public function setResetPwdToken(?string $resetPwdToken): static
+    {
+        $this->resetPwdToken = $resetPwdToken;
+
+        return $this;
+    }
+
+    public function getResetPwdTokenLifetime(): ?\DateTimeInterface
+    {
+        return $this->resetPwdTokenLifetime;
+    }
+
+    public function setResetPwdTokenLifetime(?\DateTimeInterface $resetPwdTokenLifetime): static
+    {
+        $this->resetPwdTokenLifetime = $resetPwdTokenLifetime;
+
+        return $this;
+    }
+
+    public function getLastPasswordResetRequest(): ?\DateTimeInterface
+    {
+        return $this->lastPasswordResetRequest;
+    }
+
+    public function setLastPasswordResetRequest(?\DateTimeInterface $lastPasswordResetRequest): static
+    {
+        $this->lastPasswordResetRequest = $lastPasswordResetRequest;
 
         return $this;
     }

@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
 import {AuthProvider} from "@/context/authContext";
+import {TooltipProvider} from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
     title: "Tsundoku",
@@ -17,7 +18,9 @@ export default function RootLayout({
         <html lang="en">
         <body>
         <AuthProvider>
-            {children}
+            <TooltipProvider>
+                {children}
+            </TooltipProvider>
         </AuthProvider>
         </body>
         </html>

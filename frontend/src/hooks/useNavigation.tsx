@@ -19,4 +19,6 @@ export const useNavigation = () => {
             active: pathname === "/friends",
         }
     ], [pathname]);
+
+    return paths;
 };

@@ -1,9 +1,8 @@
-// Topbar.tsx
 import { Bell, ChevronDown } from "lucide-react";
 
-export default function Topbar() {
+export default function Navbar() {
     return (
-        <div className="fixed top-0 left-0 ml-52 w-[calc(100%-13rem)] bg-gray-800 h-16 flex justify-between items-center px-4 shadow-md">
+        <div className="fixed left-0 ml-52 w-[calc(100%-13rem)] bg-gray-800 h-16 flex justify-between items-center px-4 shadow-md">
             <div className="text-white text-lg">
                 Bienvenue, <span className="text-green-400">Anne Honyme</span> !
             </div>

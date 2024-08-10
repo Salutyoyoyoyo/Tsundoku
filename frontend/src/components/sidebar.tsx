@@ -41,7 +41,7 @@ export default function Sidebar() {
                         </a>
                     </li>
                     <li>
-                        <a href="#" className="flex items-center text-gray-400 hover:text-white">
+                        <a href="/conversations" className="flex items-center text-gray-400 hover:text-white">
                             <MessageCircle className="mr-3"/>
                             <span>Messages</span>
                             <span

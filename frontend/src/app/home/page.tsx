@@ -1,15 +1,17 @@
 'use client';
 
 import LogoutButton from "@/components/logoutButton";
-import { useAuthContext } from "@/context/authContext";
+import Navbar from "@/components/navbar";
+import Sidebar from "@/components/sidebar";
+import ConversationPage from "@/app/(chat)/conversations/page";
 
 export default function Home() {
-    const { user } = useAuthContext();
-
     return (
-        <main>
-            <h1>Welcome Home!</h1>
-            <LogoutButton />
-        </main>
+        <>
+            <aside>
+                <Navbar />
+                <Sidebar />
+            </aside>
+        </>
     );
 }

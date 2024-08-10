@@ -1,12 +1,11 @@
 import React from "react";
 
 type Props = {
-
 }
 
 const FriendsPage = (props: Props) => {
     return (
-        <div>ConversationPage</div>
+        <div>FriendsPage</div>
     )
 }
 

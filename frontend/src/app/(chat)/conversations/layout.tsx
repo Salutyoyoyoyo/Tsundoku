@@ -2,9 +2,9 @@ import React from "react";
 
 type Props = React.PropsWithChildren<{}>
 
-const ConversationLayout = (props: Props) => {
+const ConversationLayout = ({children}: Props) => {
     return (
-        <div></div>
+        <div>{children}</div>
     )
 };
 

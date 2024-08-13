@@ -1,4 +1,5 @@
 import { Bell, ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 export default function Navbar() {
     return (
@@ -9,7 +10,7 @@ export default function Navbar() {
             <div className="flex items-center">
                 <Bell className="text-white mr-4" />
                 <div className="flex items-center bg-gray-700 p-2 rounded-lg cursor-pointer">
-                    <img
+                    <Image
                         src="profile-image-url.jpg"
                         alt="Profile"
                         className="w-8 h-8 rounded-full mr-2"

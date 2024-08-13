@@ -83,7 +83,7 @@ export default function RegisterPage() {
             ) : (
                 <section>
                     <p ref={errRef} className={errMsg ? "text-red-500" : "absolute left-[-9999px]"} aria-live="assertive">{errMsg}</p>
-                    <h1>Page d'inscription</h1>
+                    <h1>Page d&#39;inscription</h1>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <label htmlFor="email" className="block">
                             Email:
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                             className="border rounded w-full p-2"
                         />
                         <p id="uidnote" className={emailFocus && email && !validEmail ? "text-red-500" : "hidden"}>
-                            L'adresse électronique doit être au format : example@domain.com.
+                            L&#39;adresse électronique doit être au format : example@domain.com.
                         </p>
 
                         <label htmlFor="pwd" className="block">
@@ -173,7 +173,7 @@ export default function RegisterPage() {
                                     : "bg-blue-500 text-white"
                             }`}
                         >
-                            S'inscrire
+                            S&#39;inscrire
                         </button>
                         <p>
                             Déjà inscrit ?<br/>

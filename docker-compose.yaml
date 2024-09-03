@@ -80,6 +80,15 @@ services:
     networks:
       - dev
 
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - "1080:1080"  # Interface web de MailDev
+      - "1025:1025"  # Serveur SMTP de MailDev
+    networks:
+      - dev
+
 volumes:
   db-data:
   redis-data:

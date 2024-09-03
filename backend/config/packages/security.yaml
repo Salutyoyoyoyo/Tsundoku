@@ -8,26 +8,25 @@ security:
       entity:
         class: App\Entity\User
         property: email
+
   firewalls:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
+
     refresh:
       pattern: ^/api/token/refresh
       stateless: true
       provider: user_provider
       refresh_jwt:
         check_path: /api/token/refresh
+
     login:
       pattern: ^/api/login
       provider: user_provider
       stateless: true
-      json_login:
-        check_path: /api/login_check
-        username_path: email
-        password_path: password
-        success_handler: lexik_jwt_authentication.handler.authentication_success
-        failure_handler: lexik_jwt_authentication.handler.authentication_failure
+      custom_authenticator: App\Security\CustomAuthenticator
+
     api:
       pattern: ^/api
       stateless: true

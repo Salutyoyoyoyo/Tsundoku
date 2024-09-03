@@ -1,22 +1,24 @@
 'use server';
 
-import { createSession } from '@/app/_lib/session';
+import {createSession} from '@/app/_lib/session';
 
 const symfonyUrl = process.env.SYMFONY_URL;
 
 interface LoginResponse {
     success: boolean;
-    userData?: any;
+    userId: number;
+    email: string;
+    isVerified: boolean;
     token?: string;
     error?: string;
 }
 
 export async function HandleLogin(email: string, password: string): Promise<LoginResponse> {
     try {
-        const response = await fetch(`${symfonyUrl}/api/login_check`, {
+        const response = await fetch(`${symfonyUrl}/api/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password}),
         });
 
         if (!response.ok) {
@@ -25,12 +27,19 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
 
         const data = await response.json();
 
+        const userId = data.userId;
+        const userEmail = data.email;
+        const isVerified = data.isVerified;
         const token = data.token;
-        const refreshToken = data.refresh_token
-        await createSession(token, refreshToken);
+        const refreshToken = data.refresh_token;
+
+        await createSession(userId, userEmail, isVerified, token, refreshToken);
 
         return {
             success: true,
+            userId: data.userId,
+            email: data.email,
+            isVerified: data.isVerified,
             token: data.token,
         };
 
@@ -52,6 +61,7 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
         }
 
         return {
+            email: "", isVerified: false, token: "", userId: 0,
             success: false,
             error: errorMessage
         };

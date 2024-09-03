@@ -37,7 +37,7 @@ composer-install:
 	$(COMPOSE) exec $(COMPOSER_SERVICE) composer install
 
 composer-require:
-	$(COMPOSE) exec $(PHP_SERVICE) composer require $(package)
+	$(COMPOSE) exec $(COMPOSER_SERVICE) composer require $(package)
 
 # Symfony commands
 make-entity:

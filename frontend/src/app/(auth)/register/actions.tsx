@@ -8,13 +8,13 @@ interface RegisterResponse {
 }
 
 export async function HandleRegister(email: string, password: string): Promise<RegisterResponse> {
-    console.log({email: email, password: password});
     try {
         const response = await fetch(`${symfonyUrl}/register`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({email: email, password: password}),
         });
+
         if (!response.ok) {
             throw response;
         }
@@ -24,7 +24,7 @@ export async function HandleRegister(email: string, password: string): Promise<R
         }
     } catch (error: any) {
         let errorMessage;
-        console.log('error 2:', error)
+
         if (error instanceof Response) {
             if (500 === error?.status) {
                 errorMessage = 'No server response';

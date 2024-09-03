@@ -10,7 +10,7 @@ const cookieConfig = {
     name: 'session',
     options: {httpOnly: true, secure: true, sameSite: 'lax', path: '/'},
     duration: 24 * 60 * 60 * 1000
-};
+}
 
 export async function encrypt(payload: any) {
     return new SignJWT(payload)
@@ -18,7 +18,7 @@ export async function encrypt(payload: any) {
         .setIssuedAt()
         .setExpirationTime('1day')
         .sign(key);
-};
+}
 
 export async function decrypt(session: any) {
     try {
@@ -29,18 +29,18 @@ export async function decrypt(session: any) {
     } catch (error) {
         return null;
     }
-};
+}
 
-export async function createSession(token: string, refreshToken: string): Promise<void> {
+export async function createSession(userId: number, email: string, isVerified: boolean, token: string, refreshToken: string): Promise<void> {
     const expires = new Date(Date.now() + cookieConfig.duration);
-    const session = await encrypt({token, refreshToken, expires});
+    const session = await encrypt({userId, email, isVerified, token, refreshToken, expires});
     cookies().set(cookieConfig.name, session, {expires, httpOnly: true});
-};
+}
 
 export async function getSession() {
     const cookie = cookies().get('session')?.value;
     return await decrypt(cookie);
-};
+}
 
 export async function verifySession(): Promise<{ userData: JWTPayload }> {
     const cookie = cookies().get(cookieConfig.name)?.value;
@@ -48,9 +48,9 @@ export async function verifySession(): Promise<{ userData: JWTPayload }> {
     if (!session || !session.token || !session.refreshToken) return redirect('/');
 
     return {userData: session};
-};
+}
 
 export async function deleteSession(): Promise<void> {
     cookies().delete(cookieConfig.name);
-    redirect('/');
-};
+    redirect('/login');
+}

@@ -11,9 +11,11 @@ export default function Navbar() {
                 <Bell className="text-white mr-4" />
                 <div className="flex items-center bg-gray-700 p-2 rounded-lg cursor-pointer">
                     <Image
-                        src="profile-image-url.jpg"
+                        src=""
                         alt="Profile"
                         className="w-8 h-8 rounded-full mr-2"
+                        width={32}
+                        height={32}
                     />
                     <span className="text-white">Anne Honyme</span>
                     <ChevronDown className="text-white ml-2" />

@@ -1,11 +1,12 @@
 import React from "react";
+import ConversationFallBack from "@/app/(chat)/components/conversation/ConversationFallBack";
 
 type Props = {
 }
 
 const ConversationPage = (props: Props) => {
     return (
-        <div className="mt-16">ConversationPage</div>
+        <div className="ml-80"><ConversationFallBack /></div>
     )
 }
 

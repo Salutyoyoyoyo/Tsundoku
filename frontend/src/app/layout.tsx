@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import "./globals.css";
 import {AuthProvider} from "@/context/authContext";
 import {TooltipProvider} from "@/components/ui/tooltip";
+import {Toaster} from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
     title: "Tsundoku",
@@ -18,9 +19,10 @@ export default function RootLayout({
         <body>
         <AuthProvider>
             <TooltipProvider>
-                {children}
+                    {children}
             </TooltipProvider>
         </AuthProvider>
+        <Toaster />
         </body>
         </html>
     );

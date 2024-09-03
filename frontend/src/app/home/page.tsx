@@ -3,7 +3,8 @@
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {useAuthContext} from "@/context/authContext";
-import LogoutButton from "@/components/logoutButton";
+import Navbar from "@/components/navbar";
+import Sidebar from "@/components/sidebar";
 
 export default function Home() {
     const [errMsg, setErrMsg] = useState<string | null>(null);
@@ -27,18 +28,17 @@ export default function Home() {
     }, [isAuthenticated, user, router]);
 
     return (
-            <div>
-                {user ? (
-                    <div>
-                        <h1>Welcome Home</h1>
-                        <p>Welcome Home, {user.email}</p>
-                        <p>User ID: {user.userId}</p>
-                        <p>Is Verified: {user.isVerified ? "Yes" : "No"}</p>
-                        <LogoutButton/>
-                    </div>
-                ) : (
-                    <p>Loading...</p>
-                )}
-            </div>
-        );
-    }
+        <div>
+            {user ? (
+                <>
+                    <aside>
+                        <Navbar/>
+                        <Sidebar/>
+                    </aside>
+                </>
+            ) : (
+                <p>Loading...</p>
+            )}
+        </div>
+    );
+}

@@ -196,7 +196,7 @@ export default function RegisterPage() {
                             </button>
                             <p className="mt-4 text-center">
                                 Déjà inscrit ?<br/>
-                                <a href="/auth/login" className="text-blue-500 underline">Page de connexion</a>
+                                <a href="/login" className="text-blue-500 underline">Page de connexion</a>
                             </p>
                         </form>
                     </div>

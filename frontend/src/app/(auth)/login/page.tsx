@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, User, Lock, OctagonAlert, ArrowRight } from "lucide-react";
-import { HandleLogin } from "@/app/auth/login/actions";
+import { HandleLogin } from "@/app/(auth)/login/actions";
 import { useAuthContext } from "@/context/authContext";
 
 export default function LoginPage() {
@@ -37,11 +37,11 @@ export default function LoginPage() {
     };
 
     const handleRegisterRedirect = () => {
-        router.push('/auth/register');
+        router.push('/register');
     };
 
     const handleForgotPasswordRedirect = () => {
-        router.push('/auth/forgot-password');
+        router.push('/forgot-password');
     };
 
     const handlePrivacyPolicyRedirect = () => {

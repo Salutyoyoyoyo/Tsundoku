@@ -13,7 +13,7 @@ const LogoutButton = () => {
             await deleteSession();
             setIsAuthenticated(false);
             setUser(null);
-            router.push('/auth/login');
+            router.push('/login');
         } catch (error) {
             throw ('Failed to Logout');
         }

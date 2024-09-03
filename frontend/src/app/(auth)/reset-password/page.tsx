@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
             setMessageType('success');
 
             setTimeout(() => {
-                router.push('/auth/login');
+                router.push('/login');
             }, 5000);
         } else {
             setMessage('Une erreur s\'est produite.');

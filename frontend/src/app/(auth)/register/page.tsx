@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CircleCheckBig, CircleX } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { HandleRegister } from "@/app/auth/register/actions";
+import { HandleRegister } from "@/app/(auth)/register/actions";
 
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PWD_REGEX: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;

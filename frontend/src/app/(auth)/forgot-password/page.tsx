@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { handleForgotPassword } from '@/app/auth/forgot-password/actions';
+import { handleForgotPassword } from '@/app/(auth)/forgot-password/actions';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
     };
 
     const goToLogin = () => {
-        router.push('/auth/login');
+        router.push('/login');
     };
 
     return (

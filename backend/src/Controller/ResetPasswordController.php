@@ -51,7 +51,7 @@ class ResetPasswordController extends AbstractController {
         $user->setResetPwdTokenLifetime((new \DateTime())->modify('+1 hour'));
         $entityManager->flush();
 
-        $resetUrl = $_ENV['FRONT_URL'] . '/auth/reset-password?token=';
+        $resetUrl = $_ENV['FRONT_URL'] . '/(auth)/reset-password?token=';
         $htmlContent = file_get_contents(__DIR__ . '/../Emails/reset_password_mail.html');
         $htmlContent = str_replace('{{ reset_url }}', $resetUrl, $htmlContent);
 

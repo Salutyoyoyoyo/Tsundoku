@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useAuthContext } from "@/context/authContext";
 import { isTokenExpired, refreshAuthToken } from "@/services/refreshService";
 
@@ -7,40 +8,52 @@ interface FetchOptions extends RequestInit {
     };
 }
 
-export const useFetchWithAuth = async (url: string | URL | Request, options: FetchOptions = {}) => {
-    const { token } = useAuthContext();
+export const useRefreshIfNeeded = () => {
+    const { token, setToken } = useAuthContext();
 
-    await useRefreshIfNeeded();
+    useEffect(() => {
+        const refreshTokenIfNeeded = async () => {
+            const refreshToken = await isTokenExpired();
 
-    const headers: { [key: string]: string } = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
+            if (refreshToken) {
+                const newToken = await refreshAuthToken(refreshToken);
+                if (newToken) {
+                    setToken(newToken);
+                }
+            }
+        };
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const config: RequestInit = {
-        ...options,
-        headers,
-    };
-
-    const response = await fetch(url, config);
-    if (!response.ok) {
-        console.error(!response.ok);
-    }
-    return response.json();
+        refreshTokenIfNeeded();
+    }, [token, setToken]);
 };
 
-export const useRefreshIfNeeded = async () => {
-    const { setToken } = useAuthContext();
-    const refreshToken = await isTokenExpired();
+export const useFetchWithAuth = () => {
+    const { token } = useAuthContext();
+    useRefreshIfNeeded();
 
-    if (refreshToken) {
-        const newToken = await refreshAuthToken(refreshToken);
-        if (newToken) {
-            setToken(newToken);
+    const fetchWithAuth = async (url: string | URL | Request, options: FetchOptions = {}) => {
+        const headers: { [key: string]: string } = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
         }
-    }
+
+        const config: RequestInit = {
+            ...options,
+            headers,
+        };
+
+        const response = await fetch(url, config);
+        if (!response.ok) {
+            console.error("Request failed:", response.status, response.statusText);
+            throw new Error('Request failed');
+        }
+
+        return response.json();
+    };
+
+    return fetchWithAuth;
 };

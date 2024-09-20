@@ -7,7 +7,7 @@ import { HandleLogin } from "@/app/(auth)/login/actions";
 import { useAuthContext } from "@/context/authContext";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState<string>('yoyoyoy1zszezo1.1234@hotmail.com');
+    const [email, setEmail] = useState<string>('admin@admin.com');
     const [pwd, setPwd] = useState<string>('testtest');
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -30,7 +30,7 @@ export default function LoginPage() {
             setPwd('');
             setErrMsg(null);
 
-            router.push('/');
+            router.push('/home');
         } else {
             setErrMsg(response.error || null);
         }

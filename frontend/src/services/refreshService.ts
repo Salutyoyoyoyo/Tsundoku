@@ -20,7 +20,7 @@ export const refreshAuthToken = async (refreshToken: unknown): Promise<string | 
         });
 
         if (!response.ok) {
-            throw ('Failed to refresh token');
+            throw new Error('Failed to refresh token');
         };
 
         const data = await response.json();

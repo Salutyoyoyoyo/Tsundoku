@@ -3,8 +3,14 @@ const nextConfig = {
     reactStrictMode: true,
     compress: true,
     basePath: '',
-    experimental: {
-        appDir: true,
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/home',
+                permanent: true,
+            },
+        ];
     },
 };
 

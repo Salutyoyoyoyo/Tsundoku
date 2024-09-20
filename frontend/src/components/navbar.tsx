@@ -1,4 +1,6 @@
 import { Bell, ChevronDown } from "lucide-react";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import LogoutButton from "@/components/logoutButton";
 
 export default function Navbar() {
     return (
@@ -8,6 +10,8 @@ export default function Navbar() {
             </div>
             <div className="flex items-center">
                 <Bell className="text-white mr-4" />
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
                 <div className="flex items-center bg-gray-700 p-2 rounded-lg cursor-pointer">
                     <img
                         src="profile-image-url.jpg"
@@ -17,6 +21,11 @@ export default function Navbar() {
                     <span className="text-white">Anne Honyme</span>
                     <ChevronDown className="text-white ml-2" />
                 </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <LogoutButton/>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     );

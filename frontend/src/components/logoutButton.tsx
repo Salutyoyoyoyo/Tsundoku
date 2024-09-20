@@ -3,26 +3,26 @@
 import React from 'react';
 import {deleteSession} from "@/app/_lib/session";
 import {useAuthContext} from "@/context/authContext";
-import {useRouter} from "next/navigation";
+import {Button} from "@/components/ui/button";
+import {Plug} from "lucide-react";
 
 const LogoutButton = () => {
     const {setIsAuthenticated, setUser} = useAuthContext();
-    const router = useRouter();
     const handleLogout = async () => {
         try {
             await deleteSession();
             setIsAuthenticated(false);
             setUser(null);
-            router.push('/login');
         } catch (error) {
-            throw ('Failed to Logout');
+            throw new Error('Failed to Logout');
         }
     };
 
     return (
-        <button onClick={handleLogout}>
-            Logout
-        </button>
+        <Button onClick={handleLogout} className="flex items-center text-black bg-transparent outline-none focus:outline-none hover:bg-hover-bg-color">
+            <Plug className="mr-2 w-4"/>
+            Se déconnecter
+        </Button>
     );
 };
 

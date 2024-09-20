@@ -1,5 +1,5 @@
-import { useAuthContext } from "@/context/authContext";
 import { isTokenExpired, refreshAuthToken } from "@/services/refreshService";
+import { getSession } from "@/app/_lib/session";
 
 interface FetchOptions extends RequestInit {
     headers?: {
@@ -7,11 +7,21 @@ interface FetchOptions extends RequestInit {
     };
 }
 
-export const useFetchWithAuth = async (url: string | URL | Request, options: FetchOptions = {}) => {
-    const { token } = useAuthContext();
+async function getToken() {
+    const session = await getSession();
+    let token: unknown = session?.token;
 
-    await useRefreshIfNeeded();
+    if (token && await isTokenExpired()) {
+        const newToken = await refreshAuthToken(session?.refreshToken);
+        if (newToken) {
+            token = newToken;
+        }
+    }
+    return token;
+}
 
+export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
+    const token = await getToken();
     const headers: { [key: string]: string } = {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -27,20 +37,29 @@ export const useFetchWithAuth = async (url: string | URL | Request, options: Fet
     };
 
     const response = await fetch(url, config);
+    const responseData = await response.text();
+
     if (!response.ok) {
-        console.error(!response.ok);
+        return {
+            response: false,
+            status: response.status,
+            message: response.statusText,
+            error: responseData || 'Unknown error occurred'
+        };
+    }
+
+    try {
+        return {
+            response: response.ok,
+            status: response.status,
+            data: JSON.parse(responseData)
+        };
+    } catch (error) {
+        return {
+            response: response.ok,
+            status: response.status,
+            data: responseData
+        };
     }
     return response.json();
-};
-
-export const useRefreshIfNeeded = async () => {
-    const { setToken } = useAuthContext();
-    const refreshToken = await isTokenExpired();
-
-    if (refreshToken) {
-        const newToken = await refreshAuthToken(refreshToken);
-        if (newToken) {
-            setToken(newToken);
-        }
-    }
-};
+}

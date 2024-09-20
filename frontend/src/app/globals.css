@@ -23,12 +23,11 @@
 .content {
     flex: 1;
     padding: 20px;
-    margin-left: 5rem;
     margin-top: 5rem;
+    margin-left: -5.5rem;
 }
 
 .page-title {
-    margin-left: 1rem;
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 700;

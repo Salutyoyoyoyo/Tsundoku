@@ -1,18 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { decrypt } from '@/app/_lib/session';
 
 export default async function middleware(req: NextRequest) {
-    const protectedRoutes = ['/home',  '/error/unverified'];
-    const unprotectedRoutes = ['/login', '/register'];
-
+    const protectedRoutes = ['/', '/home'];
     const currentPath = req.nextUrl.pathname;
-    const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
-    const isUnprotectedRoute = unprotectedRoutes.some(route => currentPath.startsWith(route));
+    const isProtectedRoute = protectedRoutes.includes(currentPath);
 
-    if (isProtectedRoute && !isUnprotectedRoute) {
-        const cookie = cookies().get('session')?.value;
-        if (!cookie) {
-            return NextResponse.redirect(new URL('/login', req.nextUrl));
+    const cookie = req.cookies.get('session');
+
+    if (isProtectedRoute) {
+        const cookieValue = cookie?.value;
+        if (!cookieValue) {
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
+
+        const session = await decrypt(cookieValue);
+        if (!session?.userData) {
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
+    }
+
+    if (currentPath === '/login' && cookie?.value) {
+        const session = await decrypt(cookie.value);
+        console.log(session)
+        if (session?.userData) {
+            return NextResponse.redirect(new URL('/', req.url));
         }
     }
 
@@ -20,5 +32,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+    matcher: ['/((?!api|_next/static|_next/image|.*\\.ico$).*)'],
 };

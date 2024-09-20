@@ -3,7 +3,7 @@ import {Home, User, BookOpen, Trophy, MessageCircle, Users, PenTool} from 'lucid
 
 export default function Sidebar() {
     return (
-        <div className="fixed min-h-screen w-52 bg-gray-900 text-white flex flex-col">
+        <div className="fixed min-h-screen w-52 bg-gray-900 text-white flex flex-col left-0">
             <div className="flex items-center justify-center h-20 border-b border-gray-900">
                 <h1 className="text-2xl">tsundoku</h1>
             </div>

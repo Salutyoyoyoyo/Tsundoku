@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Friendship;
+use App\Entity\ChatFriendship;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Friendship>
+ * @extends ServiceEntityRepository<ChatFriendship>
  */
-class FriendshipRepository extends ServiceEntityRepository
+class ChatFriendshipRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Friendship::class);
+        parent::__construct($registry, ChatFriendship::class);
     }
 
 //    /**
-//     * @return Friendship[] Returns an array of Friendship objects
+//     * @return ChatFriendship[] Returns an array of ChatFriendship objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -31,7 +31,7 @@ class FriendshipRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Friendship
+//    public function findOneBySomeField($value): ?ChatFriendship
 //    {
 //        return $this->createQueryBuilder('f')
 //            ->andWhere('f.exampleField = :val')

@@ -10,7 +10,8 @@ import { toast } from "@/components/ui/use-toast";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "@/components/ui/button";
-import { SendHorizontal } from "lucide-react";
+import { sendMessage } from "@/app/(chat)/conversations/actions";
+import { useAuthContext } from "@/context/authContext";
 
 const chatMessageSchema = z.object({
     content: z.string().min(1, {
@@ -18,25 +19,25 @@ const chatMessageSchema = z.object({
     }),
 });
 
-const ChatInput = () => {
+type Props = {
+    conversationId: string;
+    onNewMessage: (message: any) => void;
+};
+
+const ChatInput = ({ conversationId, onNewMessage }: Props) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-    const conversationId = "some-conversation-id";
+    const { user } = useAuthContext();
+    const userEmail = user?.email;
 
     const createMessage = async (payload: any) => {
         try {
-            const response = await fetch(`/api/messages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+            const response = await sendMessage(payload, conversationId);
 
             if (!response.ok) {
                 throw new Error('Failed to send message');
             }
 
-            return await response.json();
+            return response;
         } catch (error) {
             console.error('Error sending message:', error);
             throw error;
@@ -63,9 +64,18 @@ const ChatInput = () => {
     const handleSubmit = async (values: z.infer<typeof chatMessageSchema>) => {
         mutate({
             conversationId,
-            type: "text",
-            content: values.content,
+            userEmail,
+            message: values.content,
         }).then(() => {
+            const newMessage = {
+                content: values.content,
+                sent_by: userEmail,
+                send_at: new Date().toISOString(),
+                sender_email: userEmail,
+            };
+
+            onNewMessage(newMessage);
+
             form.reset();
         }).catch((error) => {
             toast({
@@ -107,8 +117,8 @@ const ChatInput = () => {
                                 </FormItem>
                             )}
                         />
-                        <Button disabled={pending} size="icon" type="submit">
-                            <SendHorizontal />
+                        <Button disabled={pending} size="default" type="submit">
+                            Envoyer
                         </Button>
                     </form>
                 </FormProvider>
@@ -116,4 +126,5 @@ const ChatInput = () => {
         </Card>
     );
 };
+
 export default ChatInput;

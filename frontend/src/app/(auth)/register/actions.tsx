@@ -11,35 +11,34 @@ export async function HandleRegister(email: string, password: string): Promise<R
     try {
         const response = await fetch(`${symfonyUrl}/register`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email: email, password: password}),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password }),
         });
 
         if (!response.ok) {
-            throw response;
-        }
-
-        return {
-            success: true,
-        }
-    } catch (error: any) {
-        let errorMessage;
-
-        if (error instanceof Response) {
-            if (500 === error?.status) {
+            let errorMessage;
+            if (500 === response.status) {
                 errorMessage = 'No server response';
-            } else if (409 === error?.status) {
+            } else if (409 === response.status) {
                 errorMessage = 'Cet email est déjà prit';
             } else {
                 errorMessage = "L'inscription a échoué";
             }
-        } else {
-            errorMessage = 'An unexpected error occurred';
+
+            return {
+                success: false,
+                error: errorMessage
+            };
         }
 
         return {
+            success: true,
+        };
+
+    } catch (error) {
+        return {
             success: false,
-            error: errorMessage
+            error: 'An unexpected error occurred'
         };
     }
 }

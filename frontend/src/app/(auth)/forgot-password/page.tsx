@@ -43,16 +43,16 @@ export default function ForgotPasswordPage() {
                             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                         />
                     </div>
-                {message && (
-                    <div className={`mt-4 mb-4 text-center py-2 px-4 rounded ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {message}
-                    </div>
-                )}
+                    {message && (
+                        <div className={`mt-4 mb-4 text-center py-2 px-4 rounded ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {message}
+                        </div>
+                    )}
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
                     >
-                        Envoyer l'email de réinitialisation
+                        Envoyer l&apos;email de réinitialisation
                     </button>
                 </form>
                 <button

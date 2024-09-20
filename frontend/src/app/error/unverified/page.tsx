@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { useAuthContext } from "@/context/authContext";
-import { handleResendVerification} from './actions';
-import {deleteSession} from "@/app/_lib/session";
+import { handleResendVerification } from './actions';
+import { deleteSession } from "@/app/_lib/session";
 
 export default function UnverifiedPage() {
     const { user } = useAuthContext();
@@ -19,7 +19,7 @@ export default function UnverifiedPage() {
             setMessage('Email de vérification renvoyé avec succès.');
             setMessageType('success');
         } else {
-            setMessage("Échec de l'envoi de l'email de vérification.");
+            setMessage("Échec de l&apos;envoi de l&apos;email de vérification.");
             setMessageType('error');
         }
     };
@@ -30,29 +30,29 @@ export default function UnverifiedPage() {
     };
 
     return (
-        <section>
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <AlertCircle style={{ color: 'red', fontSize: '4rem' }} />
-                <h1>Compte non vérifié</h1>
-                <p>Pour vérifier votre compte, merci de cliquer sur le lien que nous vous avons envoyé par e-mail.</p>
-                <button onClick={resendVerification} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '4px' }}>
-                    Renvoyer l'email de vérification
+        <section className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+            <AlertCircle className="text-red-500 w-16 h-16 mb-4" />
+            <h1 className="text-2xl font-semibold mb-2">Compte non vérifié</h1>
+            <p className="mb-6">Pour vérifier votre compte, merci de cliquer sur le lien que nous vous avons envoyé par e-mail.</p>
+            <div className="flex flex-col space-y-4">
+                <button
+                    onClick={resendVerification}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                >
+                    Renvoyer l&apos;email de vérification
                 </button>
-                <button onClick={logout} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: '#ccc', color: 'black', border: 'none', borderRadius: '4px' }}>
+                <button
+                    onClick={logout}
+                    className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 focus:outline-none"
+                >
                     Retour à la page de connexion
                 </button>
-                {message && (
-                    <div style={{
-                        marginTop: '1rem',
-                        padding: '1rem',
-                        color: messageType === 'success' ? 'green' : 'red',
-                        border: `1px solid ${messageType === 'success' ? 'green' : 'red'}`,
-                        borderRadius: '4px'
-                    }}>
-                        {message}
-                    </div>
-                )}
             </div>
+            {message && (
+                <div className={`mt-6 px-4 py-2 border rounded ${messageType === 'success' ? 'text-green-700 border-green-700' : 'text-red-700 border-red-700'}`}>
+                    {message}
+                </div>
+            )}
         </section>
     );
 }

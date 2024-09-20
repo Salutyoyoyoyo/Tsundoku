@@ -52,14 +52,14 @@ export function AuthProvider({children}: {
             }
         };
         checkAuthBySession();
-    }, []);
+    }, [router]);
 
     const logout = async () => {
         await deleteSession();
         setIsAuthenticated(false);
         setUser(null);
         setToken(null);
-        router.push('/auth/login');
+        router.push('/login');
     };
 
     return (

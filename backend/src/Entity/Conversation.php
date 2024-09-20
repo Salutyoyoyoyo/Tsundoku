@@ -35,12 +35,24 @@ class Conversation
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'conversationsParticipants')]
     private Collection $participants;
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private ?bool $isArchived;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $archivedAt = null;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $isMuted = false;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $mutedUntil = null;
 
     public function __construct()
     {
         $this->participants = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->isGroup = false;
+        $this->isArchived = false;
     }
 
     public function getId(): ?int
@@ -128,6 +140,57 @@ class Conversation
     {
         $this->participants->removeElement($participant);
 
+        return $this;
+    }
+
+    public function getIsArchived(): bool
+    {
+        return $this->isArchived;
+    }
+
+    public function setIsArchived(bool $IsArchived): self
+    {
+        $this->isArchived = $IsArchived;
+
+        if ($IsArchived === true) {
+            $this->archivedAt = new \DateTime();
+        } else {
+            $this->archivedAt = null;
+        }
+
+        return $this;
+    }
+
+    public function getArchivedAt(): ?\DateTimeInterface
+    {
+        return $this->archivedAt;
+    }
+
+    public function setArchivedAt(?\DateTimeInterface $archivedAt): self
+    {
+        $this->archivedAt = $archivedAt;
+        return $this;
+    }
+
+    public function getIsMuted(): bool
+    {
+        return $this->isMuted;
+    }
+
+    public function setIsMuted(bool $isMuted): self
+    {
+        $this->isMuted = $isMuted;
+        return $this;
+    }
+
+    public function getMutedUntil(): ?\DateTimeInterface
+    {
+        return $this->mutedUntil;
+    }
+
+    public function setMutedUntil(?\DateTimeInterface $mutedUntil): self
+    {
+        $this->mutedUntil = $mutedUntil;
         return $this;
     }
 }

@@ -58,6 +58,12 @@ class ConversationController extends AbstractController
             }
         }
 
+        $existingConversation = $this->entityManager->getRepository(Conversation::class)->findOneByParticipants($participants);
+
+        if ($existingConversation) {
+            return new Response('Conversation already exists', Response::HTTP_CONFLICT);
+        }
+
         $conversation = new Conversation();
         $conversation->setTitle($title);
         $conversation->setCreatedBy($createdBy);
@@ -73,16 +79,57 @@ class ConversationController extends AbstractController
         $this->entityManager->persist($conversation);
         $this->entityManager->flush();
 
-        return new Response('Conversation created', Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'Conversation created', 'conversationId' => $conversation->getId()], Response::HTTP_CREATED);
     }
 
-    #[Route('/get/{id}', name: 'get_conversation', methods: ['GET'])]
+    #[Route('/get-all/{id}', name: 'get_all_conversations', methods: ['GET'])]
+    public function getConversationAll(int $id): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $conversations = $this->entityManager->getRepository(Conversation::class)->findByUser($user);
+
+        if (!$conversations) {
+            return new JsonResponse(['conversations' => []], Response::HTTP_NOT_FOUND);
+        }
+
+        $conversationData = array_map(function ($conversation) {
+            return [
+                'id' => $conversation->getId(),
+                'title' => $conversation->getTitle(),
+                'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
+                'isGroup' => $conversation->getIsGroup(),
+                'createdBy' => [
+                    'id' => $conversation->getCreatedBy()->getId(),
+                    'email' => $conversation->getCreatedBy()->getEmail(),
+                    'userName' => $conversation->getCreatedBy()->getProfiles()->first() ? $conversation->getCreatedBy()->getProfiles()->first()->getUsername() : null,
+                ],
+                'participants' => array_map(function ($participant) {
+                    return [
+                        'id' => $participant->getId(),
+                        'email' => $participant->getEmail(),
+                        'userName' => $participant->getProfiles()->first() ? $participant->getProfiles()->first()->getUsername() : null,
+                    ];
+                }, $conversation->getParticipants()->toArray()),
+                'isArchived' => $conversation->getIsArchived(),
+                'isMutedUntil' => $conversation->getMutedUntil(),
+            ];
+        }, $conversations);
+
+        return new JsonResponse(['conversations' => [$conversationData]], Response::HTTP_OK);
+    }
+
+    #[Route('/get-one/{id}', name: 'get_conversation_by_id', methods: ['GET'])]
     public function getConversationById(int $id): JsonResponse
     {
         $conversation = $this->entityManager->getRepository(Conversation::class)->find($id);
 
         if (!$conversation) {
-            return new JsonResponse('Conversation not found', Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['message' => 'Conversation not found'], Response::HTTP_NOT_FOUND);
         }
 
         $conversationData = [
@@ -92,52 +139,20 @@ class ConversationController extends AbstractController
             'createdBy' => [
                 'id' => $conversation->getCreatedBy()->getId(),
                 'email' => $conversation->getCreatedBy()->getEmail(),
-                'userName' => $this->userRepository->findUsernameByUser($conversation->getCreatedBy()),
+                'userName' => $conversation->getCreatedBy()->getProfiles()->first() ? $conversation->getCreatedBy()->getProfiles()->first()->getUsername() : null,
             ],
             'participants' => array_map(function ($participant) {
                 return [
                     'id' => $participant->getId(),
                     'email' => $participant->getEmail(),
-                    'userName' => $this->userRepository->findUsernameByUser($participant)
+                    'userName' => $participant->getProfiles()->first() ? $participant->getProfiles()->first()->getUsername() : null,
                 ];
-            }, $conversation->getParticipants()->toArray())
+            }, $conversation->getParticipants()->toArray()),
+            'isArchived' => $conversation->getIsArchived(),
+            'isMutedUntil' => $conversation->getMutedUntil(),
         ];
 
         return new JsonResponse($conversationData);
-    }
-
-    #[Route('/get-user/{id}', name: 'get_user_conversations', methods: ['GET'])]
-    public function getUserConversations(int $id): JsonResponse
-    {
-        $user = $this->entityManager->getRepository(User::class)->find($id);
-
-        if (!$user) {
-            return new JsonResponse('User not found', Response::HTTP_NOT_FOUND);
-        }
-
-        $conversations = $this->entityManager->getRepository(Conversation::class)->findByUser($user);
-
-        $conversationsData = array_map(function ($conversation) {
-            return [
-                'id' => $conversation->getId(),
-                'title' => $conversation->getTitle(),
-                'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
-                'createdBy' => [
-                    'id' => $conversation->getCreatedBy()->getId(),
-                    'email' => $conversation->getCreatedBy()->getEmail(),
-                    'userName' => $this->userRepository->findUsernameByUser($conversation->getCreatedBy())
-                ],
-                'participants' => array_map(function ($participant) {
-                    return [
-                        'id' => $participant->getId(),
-                        'email' => $participant->getEmail(),
-                        'userName' => $this->userRepository->findUsernameByUser($participant)
-                    ];
-                }, $conversation->getParticipants()->toArray())
-            ];
-        }, $conversations);
-
-        return new JsonResponse($conversationsData);
     }
 
     #[Route('/add-participants/{id}', name: 'add_participants', methods: ['POST'])]
@@ -294,5 +309,146 @@ class ConversationController extends AbstractController
         $this->entityManager->flush();
 
         return new Response('Conversation deleted', Response::HTTP_OK);
+    }
+
+    #[Route('/archived/{userId}', name: 'get_archived_conversations_by_user_id', methods: ['GET'])]
+    public function getArchivedConversationsByUserId(int $userId): Response
+    {
+        $conversations = $this->entityManager->getRepository(Conversation::class)->findArchivedConversationsByUserId($userId);
+
+        if (empty($conversations)) {
+            return new Response('No archived conversations found for this user', Response::HTTP_NOT_FOUND);
+        }
+
+        $conversationData = array_map(function ($conversation) {
+            return [
+                'id' => $conversation->getId(),
+                'title' => $conversation->getTitle(),
+                'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
+                'isGroup' => $conversation->getIsGroup(),
+                'createdBy' => [
+                    'id' => $conversation->getCreatedBy()->getId(),
+                    'email' => $conversation->getCreatedBy()->getEmail(),
+                    'userName' => $conversation->getCreatedBy()->getProfiles()->first() ? $conversation->getCreatedBy()->getProfiles()->first()->getUsername() : null,
+                ],
+                'participants' => array_map(function ($participant) {
+                    return [
+                        'id' => $participant->getId(),
+                        'email' => $participant->getEmail(),
+                        'userName' => $participant->getProfiles()->first() ? $participant->getProfiles()->first()->getUsername() : null,
+                    ];
+                }, $conversation->getParticipants()->toArray()),
+                'isArchived' => $conversation->getIsArchived(),
+                'archivedAt' => $conversation->getArchivedAt() ? $conversation->getArchivedAt()->format('Y-m-d H:i:s') : null,
+            ];
+        }, $conversations);
+
+        return new JsonResponse(['conversations' => [$conversationData]], Response::HTTP_OK);
+    }
+
+    #[Route('/archive/{conversationId}', name: 'archive_conversation', methods: ['POST'])]
+    public function archiveConversation(int $conversationId): Response
+    {
+        $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
+
+        if (!$conversation) {
+            return new Response('Conversation not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $conversation->setIsArchived(true);
+        $this->entityManager->flush();
+
+        return new Response('Conversation archived', Response::HTTP_OK);
+    }
+
+    #[Route('/unarchive/{conversationId}', name: 'unarchive_conversation', methods: ['POST'])]
+    public function unarchiveConversation(int $conversationId): Response
+    {
+        $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
+
+        if (!$conversation) {
+            return new Response('Conversation not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $conversation->setIsArchived(false);
+        $this->entityManager->flush();
+
+        return new Response('Conversation unarchived', Response::HTTP_OK);
+    }
+
+    #[Route('/unarchive-all/{id}', name: 'unarchive_all_conversations', methods: ['POST'])]
+    public function unarchiveAllConversations(int $id, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $conversations = $entityManager->getRepository(Conversation::class)->findBy([
+            'isArchived' => true
+        ]);
+
+        if (!$conversations) {
+            return new JsonResponse(['message' => 'Aucune conversations trouvées.'], Response::HTTP_NOT_FOUND);
+        }
+
+        foreach ($conversations as $conversation) {
+            $conversation->setIsArchived(false);
+            $entityManager->persist($conversation);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Toutes les conversations ont été désarchivées avec succès.']);
+    }
+
+    #[Route('/mute/{conversationId}', name: 'mute_conversation', methods: ['POST'])]
+    public function muteConversation(int $conversationId, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $conversation = $entityManager->getRepository(Conversation::class)->find($conversationId);
+
+        if (!$conversation) {
+            return new JsonResponse(['message' => 'Aucune conversation trouvée.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $duration = $data['duration'] ?? null;
+
+        if (null === $duration) {
+            return new JsonResponse(['message' => 'Durée de sourdine non spécifiée.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ('eternal' === $duration) {
+            $conversation->setMutedUntil(new \DateTime('9999-12-31 23:59:59'));
+        } else {
+            $timezone = new \DateTimeZone('Europe/Paris');
+            $muteUntil = (new \DateTime('now', $timezone))->modify("+{$duration} hours");
+            $conversation->setIsMuted(true);
+            $conversation->setMutedUntil($muteUntil);
+        }
+
+        $entityManager->persist($conversation);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Conversation mise en sourdine avec succès.']);
+    }
+
+    #[Route('/unmute/{conversationId}', name: 'unmute_conversation', methods: ['POST'])]
+    public function unmuteConversation(int $conversationId, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $conversation = $entityManager->getRepository(Conversation::class)->find($conversationId);
+
+        if (!$conversation) {
+            return new JsonResponse(['message' => 'Aucune conversation trouvée.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $conversation->setIsMuted(false);
+        $conversation->setMutedUntil(null);
+
+        $entityManager->persist($conversation);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'La sourdine de la conversation a été annulée avec succès.'], Response::HTTP_OK);
     }
 }

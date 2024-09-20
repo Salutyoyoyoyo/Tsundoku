@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\FriendshipRepository;
+use App\Repository\ChatFriendshipRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FriendshipRepository::class)]
-class Friendship
+#[ORM\Entity(repositoryClass: ChatFriendshipRepository::class)]
+class ChatFriendship
 {
     public const STATUS_PENDING = 'pending';
     public const STATUS_ACCEPTED = 'accepted';
@@ -42,7 +42,7 @@ class Friendship
     public function __construct()
     {
         $this->status = self::STATUS_PENDING;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int

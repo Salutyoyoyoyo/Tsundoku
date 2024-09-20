@@ -111,7 +111,7 @@ export default function LoginPage() {
                     onClick={handleRegisterRedirect}
                     className="w-full mt-4 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition-colors"
                 >
-                    S'inscrire
+                    S&apos;inscrire
                 </button>
                 <button
                     onClick={handleForgotPasswordRedirect}
@@ -120,23 +120,23 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                 </button>
             </div>
-                <div className="text-center mt-6">
-                    <a
-                        href="#"
-                        onClick={handlePrivacyPolicyRedirect}
-                        className="text-blue-500 hover:underline"
-                    >
-                        Politique de confidentialité
-                    </a>
-                    &nbsp;|&nbsp;
-                    <a
-                        href="#"
-                        onClick={handleTermsRedirect}
-                        className="text-blue-500 hover:underline"
-                    >
-                        Conditions générales
-                    </a>
-                </div>
+            <div className="text-center mt-6">
+                <a
+                    href="#"
+                    onClick={handlePrivacyPolicyRedirect}
+                    className="text-blue-500 hover:underline"
+                >
+                    Politique de confidentialité
+                </a>
+                &nbsp;|&nbsp;
+                <a
+                    href="#"
+                    onClick={handleTermsRedirect}
+                    className="text-blue-500 hover:underline"
+                >
+                    Conditions générales
+                </a>
+            </div>
         </section>
     );
 }

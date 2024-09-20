@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAuthContext } from "@/context/authContext";
 import { isTokenExpired, refreshAuthToken } from "@/services/refreshService";
+import { getSession } from "@/app/_lib/session";
 
 interface FetchOptions extends RequestInit {
     headers?: {
@@ -8,52 +7,52 @@ interface FetchOptions extends RequestInit {
     };
 }
 
-export const useRefreshIfNeeded = () => {
-    const { token, setToken } = useAuthContext();
+async function getToken() {
+    const session = await getSession();
+    let token = session?.token;
 
-    useEffect(() => {
-        const refreshTokenIfNeeded = async () => {
-            const refreshToken = await isTokenExpired();
+    if (await isTokenExpired()) {
+        token = await refreshAuthToken(session?.refreshToken);
+    }
 
-            if (refreshToken) {
-                const newToken = await refreshAuthToken(refreshToken);
-                if (newToken) {
-                    setToken(newToken);
-                }
-            }
-        };
+    return token;
+}
 
-        refreshTokenIfNeeded();
-    }, [token, setToken]);
-};
-
-export const useFetchWithAuth = () => {
-    const { token } = useAuthContext();
-    useRefreshIfNeeded();
-
-    const fetchWithAuth = async (url: string | URL | Request, options: FetchOptions = {}) => {
-        const headers: { [key: string]: string } = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
-
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const config: RequestInit = {
-            ...options,
-            headers,
-        };
-
-        const response = await fetch(url, config);
-        if (!response.ok) {
-            console.error("Request failed:", response.status, response.statusText);
-            throw new Error('Request failed');
-        }
-
-        return response.json();
+export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
+    const token = await getToken();
+    const headers: { [key: string]: string } = {
+        'Content-Type': 'application/json',
+        ...options.headers,
     };
 
-    return fetchWithAuth;
-};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const config: RequestInit = {
+        ...options,
+        headers,
+    };
+
+    const response = await fetch(url, config);
+    const responseData = await response.text();
+
+    if (!response.ok) {
+        console.error('Error response:', response.status, response.statusText);
+    }
+
+    try {
+        return {
+            ok: response.ok,
+            status: response.status,
+            data: JSON.parse(responseData)
+        };
+    } catch (error) {
+        return {
+            ok: response.ok,
+            status: response.status,
+            data: responseData
+        };
+    }
+    return response.json();
+}

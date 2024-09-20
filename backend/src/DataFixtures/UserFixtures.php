@@ -24,7 +24,7 @@ class UserFixtures extends Fixture
         $user->setCreatedAt(new \DateTime('now'));
         $user->setTokenRegistration('');
         $user->setResetPwdToken('');
-        $user->setVerified(false);
+        $user->setVerified(true);
         $user->setTokenRegistrationLifetime(new \DateTime('+1 day'));
         $user->setResetPwdTokenLifetime(new \DateTime('+1 hour'));
         $user->setLastPasswordResetRequest(new \DateTime('now'));

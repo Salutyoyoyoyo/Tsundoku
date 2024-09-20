@@ -1,10 +1,7 @@
 import React from "react";
 import ConversationFallBack from "@/app/(chat)/components/conversation/ConversationFallBack";
 
-type Props = {
-}
-
-const ConversationPage = (props: Props) => {
+const ConversationPage = () => {
     return (
         <div className="ml-80"><ConversationFallBack /></div>
     )

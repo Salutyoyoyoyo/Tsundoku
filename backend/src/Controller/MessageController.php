@@ -30,13 +30,12 @@ class MessageController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!$conversationId || empty($data['message'])) {
-                return new Response('Missing conversation ID or message content.', Response::HTTP_BAD_REQUEST);
+            if (!$conversationId || empty($data['message']) || empty($data['userEmail'])) {
+                return new Response('Missing conversation ID, user email, or message content.', Response::HTTP_BAD_REQUEST);
             }
 
             $messageContent = $data['message'];
-
-            $userEmail = $data['userEmail'] ?? null;
+            $userEmail = $data['userEmail'];
             $createdBy = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
 
             if (!$createdBy) {
@@ -49,20 +48,18 @@ class MessageController extends AbstractController
                 return new Response('Conversation not found.', Response::HTTP_NOT_FOUND);
             }
 
-            $userName = $this->entityManager->getRepository(User::class)->findUsernameByUser($createdBy);
-
-            if (!$userName) {
-                return new Response('Username not found for the provided user.', Response::HTTP_NOT_FOUND);
-            }
-
             if (!$conversation->getParticipants()->contains($createdBy)) {
                 return new JsonResponse('User is not a participant in this conversation.', Response::HTTP_FORBIDDEN);
             }
+            $dateTime = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+            $formattedDate = $dateTime->format('Y-m-d H:i:s');
 
             $messageData = [
                 'content' => $messageContent,
-                'sent_by' => $userName,
-                'send_at' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')
+                'sender_email' => $userEmail,
+                'sent_by' => $createdBy->getProfiles()->first()->getUsername(),
+                'send_at' => $formattedDate,
+                'isRead' => false
             ];
 
             $this->confRedisService->addMessageToConversation($conversationId, $messageData);
@@ -77,21 +74,13 @@ class MessageController extends AbstractController
     public function getMessages(int $conversationId, Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
+            $user = $this->getUser();
 
-            //test postman
-            $userEmail = $data['userEmail'] ?? null;
-            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
-
-            //test front
-            //$userEmail = $request->headers->get('userEmail');
-            //$user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
-
-            if (!$userEmail) {
-                return new JsonResponse('User email not provided.', Response::HTTP_BAD_REQUEST);
+            if (!$user) {
+                return new JsonResponse('User not authenticated.', Response::HTTP_UNAUTHORIZED);
             }
 
+            $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
             if (!$conversation) {
                 return new JsonResponse('Conversation not found.', Response::HTTP_NOT_FOUND);
             }
@@ -99,45 +88,84 @@ class MessageController extends AbstractController
             if (!$conversation->getParticipants()->contains($user)) {
                 return new JsonResponse('User is not a participant in this conversation.', Response::HTTP_FORBIDDEN);
             }
-            $messages = $this->confRedisService->getMessagesFromConversation($conversationId);
 
-            return $this->json($messages, Response::HTTP_OK);
+            $page = (int) $request->query->get('page', 1);
+            $limit = (int) $request->query->get('limit', 20);
+
+            $allMessages = $this->confRedisService->getMessagesFromConversation($conversationId);
+            if (empty($allMessages)) {
+                return new JsonResponse('No messages found for this conversation.', Response::HTTP_OK);
+            }
+
+            $allMessages = array_reverse($allMessages);
+
+            $offset = ($page - 1) * $limit;
+            $pagedMessages = array_slice($allMessages, $offset, $limit);
+
+            return $this->json($pagedMessages, Response::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-    #[Route('/get-last-messages/{userId}', name: 'get_last_messages', methods: ['GET'])]
-    public function getLastMessages(int $userId): JsonResponse
+    #[Route('/get-last-messages/{conversationId}', name: 'get_last_messages', methods: ['GET'])]
+    public function getLastMessages(int $conversationId): JsonResponse
     {
         try {
-            $user = $this->entityManager->getRepository(User::class)->find($userId);
+            $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
 
-            if (!$user) {
-                return new JsonResponse('User not found', Response::HTTP_NOT_FOUND);
+            if (!$conversation) {
+                return new JsonResponse('Conversation not found', Response::HTTP_NOT_FOUND);
             }
 
-            $conversations = $this->entityManager->getRepository(Conversation::class)->createQueryBuilder('c')
-                ->innerJoin('c.participants', 'p')
-                ->where('p.id = :userId')
-                ->setParameter('userId', $userId)
-                ->getQuery()
-                ->getResult();
-
-            $lastMessages = [];
-            foreach ($conversations as $conversation) {
-                $conversationId = $conversation->getId();
-                $messages = $this->confRedisService->getMessagesFromConversation($conversationId);
-                $lastMessage = end($messages);
-                $lastMessages[] = [
-                    'conversationId' => $conversationId,
-                    'lastMessage' => $lastMessage,
-                ];
+            $messages = $this->confRedisService->getMessagesFromConversation($conversationId);
+            if (!$messages) {
+                return new JsonResponse('No messages found for this conversation.', Response::HTTP_OK);
             }
 
-            return new JsonResponse($lastMessages);
+            $lastMessage = end($messages);
+
+            $response = [
+                'conversationId' => $conversationId,
+                'lastMessage' => $lastMessage,
+            ];
+
+            return new JsonResponse($response);
         } catch (\Exception $e) {
             return new JsonResponse('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    #[Route('/mark-messages-read/{conversationId}', name: 'mark_messages_read', methods: ['POST'])]
+    public function markMessagesRead(int $conversationId, Request $request): Response
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            $userEmail = $data['userEmail'];
+
+            if (!$userEmail) {
+                return new Response('User email is required.', Response::HTTP_BAD_REQUEST);
+            }
+
+            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
+
+            if (!$user) {
+                return new Response('User not found.', Response::HTTP_NOT_FOUND);
+            }
+
+            $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
+
+            if (!$conversation) {
+                return new Response('Conversation not found.', Response::HTTP_NOT_FOUND);
+            }
+
+            if (!$conversation->getParticipants()->contains($user)) {
+                return new JsonResponse('User is not a participant in this conversation.', Response::HTTP_FORBIDDEN);
+            }
+
+            $this->confRedisService->markMessagesRead($conversationId, $userEmail);
+
+            return new Response('All messages marked as read.', Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return new Response('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

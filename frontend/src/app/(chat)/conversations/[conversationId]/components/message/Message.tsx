@@ -1,10 +1,10 @@
 import React from "react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import {format, isToday, isYesterday} from "date-fns";
+import {fr} from "date-fns/locale";
+import {cn} from "@/lib/utils";
 
 type Props = {
     fromCurrentUser: boolean;
-    senderImage: string;
     senderName: string;
     lastByUser: boolean;
     content: string[];
@@ -12,19 +12,27 @@ type Props = {
     type: string;
 };
 
-const Message = ({ fromCurrentUser, senderImage, senderName, lastByUser, content, createdAt, type }: Props) => {
+const Message = ({fromCurrentUser, senderName, lastByUser, content, createdAt, type}: Props) => {
     const formatTime = (timestamp: number) => {
-        return format(new Date(timestamp), "HH:mm");
+        const date = new Date(timestamp);
+
+        if (isToday(date)) {
+            return format(date, "HH:mm");
+        } else if (isYesterday(date)) {
+            return `Hier à ${format(date, "HH:mm")}`;
+        } else {
+            return format(date, "d MMMM 'à' HH:mm", {locale: fr});
+        }
     };
 
     return (
-        <div className={cn("flex items-end", {
+        <div className={cn("flex items-end mb-4", {
             'justify-end': fromCurrentUser,
             'justify-start': !fromCurrentUser
         })}>
-            <div className={cn("flex flex-col w-full mx-2", {
-                "order-1 items-end": fromCurrentUser,
-                "order-2 items-start": !fromCurrentUser
+            <div className={cn("flex w-full mx-2", {
+                "order-1 justify-end": fromCurrentUser,
+                "order-2 justify-start": !fromCurrentUser
             })}>
                 <div className={cn("px-4 py-2 rounded-lg max-w-[70%]", {
                     "bg-primary text-primary-foreground": fromCurrentUser,
@@ -38,12 +46,14 @@ const Message = ({ fromCurrentUser, senderImage, senderName, lastByUser, content
                         </p>
                     ) : null}
                 </div>
-                <p className={cn("text-xs flex w-full my-1", {
-                    "text-primary-foreground justify-end": fromCurrentUser,
-                    "text-secondary-foreground justify-start": !fromCurrentUser
-                })}>
-                    {formatTime(createdAt)}
-                </p>
+                    <span className={cn("text-xs ml-4 mr-4 ", {
+                        "text-gray-500": fromCurrentUser,
+                        "text-gray-400": !fromCurrentUser,
+                        "order-last": !fromCurrentUser,
+                        "order-first": fromCurrentUser
+                    })}>
+                        {formatTime(createdAt)}
+                    </span>
             </div>
         </div>
     );

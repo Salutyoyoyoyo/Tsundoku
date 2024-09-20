@@ -9,12 +9,14 @@ interface FetchOptions extends RequestInit {
 
 async function getToken() {
     const session = await getSession();
-    let token = session?.token;
+    let token: unknown = session?.token;
 
-    if (await isTokenExpired()) {
-        token = await refreshAuthToken(session?.refreshToken);
+    if (token && await isTokenExpired()) {
+        const newToken = await refreshAuthToken(session?.refreshToken);
+        if (newToken) {
+            token = newToken;
+        }
     }
-
     return token;
 }
 
@@ -38,18 +40,23 @@ export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
     const responseData = await response.text();
 
     if (!response.ok) {
-        console.error('Error response:', response.status, response.statusText);
+        return {
+            response: false,
+            status: response.status,
+            message: response.statusText,
+            error: responseData || 'Unknown error occurred'
+        };
     }
 
     try {
         return {
-            ok: response.ok,
+            response: response.ok,
             status: response.status,
             data: JSON.parse(responseData)
         };
     } catch (error) {
         return {
-            ok: response.ok,
+            response: response.ok,
             status: response.status,
             data: responseData
         };

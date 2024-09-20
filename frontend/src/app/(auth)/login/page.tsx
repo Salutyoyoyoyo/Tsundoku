@@ -30,7 +30,7 @@ export default function LoginPage() {
             setPwd('');
             setErrMsg(null);
 
-            router.push('/');
+            router.push('/home');
         } else {
             setErrMsg(response.error || null);
         }

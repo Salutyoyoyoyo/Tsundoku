@@ -19,9 +19,6 @@ class Conversation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::BOOLEAN)]
-    private ?bool $isGroup;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt;
 
@@ -51,7 +48,6 @@ class Conversation
     {
         $this->participants = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-        $this->isGroup = false;
         $this->isArchived = false;
     }
 
@@ -69,17 +65,6 @@ class Conversation
     {
         $this->title = $title;
 
-        return $this;
-    }
-
-    public function getIsGroup(): ?bool
-    {
-        return $this->isGroup;
-    }
-
-    public function setIsGroup(bool $isGroup): static
-    {
-        $this->isGroup = $isGroup;
         return $this;
     }
 

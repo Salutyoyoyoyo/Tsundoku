@@ -1,16 +1,16 @@
 'use client';
 
 import React, {useEffect, useState, useRef} from "react";
-import ConversationContainer from "@/app/(chat)/components/conversation/ConversationContainer";
+import ConversationContainer from "@/app/(main)/(chat)/components/conversation/ConversationContainer";
 import {Loader2} from "lucide-react";
-import Header from "@/app/(chat)/conversations/[conversationId]/components/header/Header";
-import ChatInput from "@/app/(chat)/conversations/[conversationId]/components/Input/Input";
+import Header from "@/app/(main)/(chat)/conversations/[conversationId]/components/header/Header";
+import ChatInput from "@/app/(main)/(chat)/conversations/[conversationId]/components/Input/Input";
 import {
     fetchMarkMessagesAsRead,
     fetchMessagesFromConversationId,
     fetchOneConversationById
-} from "@/app/(chat)/conversations/actions";
-import Body from "@/app/(chat)/conversations/[conversationId]/components/body/Body";
+} from "@/app/(main)/(chat)/conversations/actions";
+import Body from "@/app/(main)/(chat)/conversations/[conversationId]/components/body/Body";
 import {useAuthContext} from "@/context/authContext";
 
 type Props = {

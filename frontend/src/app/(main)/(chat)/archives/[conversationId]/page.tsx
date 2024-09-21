@@ -2,7 +2,7 @@
 'use client';
 
 import React from "react";
-import ConversationView from "@/app/(chat)/components/conversation/ConversationView";
+import ConversationView from "@/app/(main)/(chat)/components/conversation/ConversationView";
 
 type Props = {
     params: {

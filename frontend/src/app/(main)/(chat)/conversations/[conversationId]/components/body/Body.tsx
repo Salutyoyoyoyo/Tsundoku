@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Message from "@/app/(chat)/conversations/[conversationId]/components/message/Message";
+import Message from "@/app/(main)/(chat)/conversations/[conversationId]/components/message/Message";
 import { Loader2 } from "lucide-react";
-import { fetchMessagesFromConversationId } from "@/app/(chat)/conversations/actions";
+import { fetchMessagesFromConversationId } from "@/app/(main)/(chat)/conversations/actions";
 import ScrollToBottomButton from "@/components/ScrollToBottomButton";
 
 type Props = {

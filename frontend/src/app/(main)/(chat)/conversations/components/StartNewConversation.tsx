@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import {Check, SquarePen} from "lucide-react";
 import { useAuthContext } from "@/context/authContext";
 import { toast } from "@/components/ui/use-toast";
-import { fetchFriendsList } from "@/app/(chat)/friends/actions";
-import { startNewConversation } from "@/app/(chat)/conversations/actions";
+import { fetchFriendsList } from "@/app/(main)/(chat)/friends/actions";
+import { startNewConversation } from "@/app/(main)/(chat)/conversations/actions";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -87,7 +87,7 @@ const StartNewConversation = () => {
                     variant: "default",
                     description: "Nouvelle conversation démarrée !",
                 });
-                const conversationId = response.data.data?.conversationId;
+                const conversationId = response?.conversationId;
                 setIsDialogOpen(false);
                 router.push(`/conversations/${conversationId}`);
             } else if (response.error === "Conversation already exists") {

@@ -38,11 +38,11 @@ export const fetchUserConversations = async (userId: string): Promise<Conversati
                 'Content-Type': 'application/json',
             },
         });
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la récupération des conversations');
         }
 
-        const {data} = response;
+        const data = response.data;
 
         if (data && data.conversations && Array.isArray(data.conversations)) {
             const flattenedConversations = data.conversations.flat();
@@ -64,11 +64,11 @@ export const fetchOneConversationById = async (conversationId: string): Promise<
             },
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la récupération de la conversation');
         }
 
-        const {data} = await response;
+        const data = response.data;
 
         if (data && data.participants && Array.isArray(data.participants)) {
             const participants: Participant[] = data.participants.map((participant: {
@@ -101,7 +101,7 @@ export const fetchMessagesFromConversationId = async (conversationId: string, pa
             },
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la récupération des messages');
         }
 
@@ -128,10 +128,10 @@ export const getLastMessageFromUser = async (conversationId: string) => {
             },
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la récupération des derniers messages');
         }
-        console.log(response)
+
         return response;
     } catch (error) {
         console.error('Erreur lors de la récupération des derniers messages :', error);
@@ -149,7 +149,7 @@ export const sendMessage = async (payload: any, conversationId: string) => {
             body: JSON.stringify(payload),
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Failed to send message');
         }
         return response;
@@ -169,7 +169,7 @@ export const fetchMarkMessagesAsRead = async (conversationId: string, userEmail:
             body: JSON.stringify({userEmail}),
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error(`Erreur : ${response.statusText}`);
         }
 
@@ -193,19 +193,20 @@ export const startNewConversation = async (userEmail: string, friendId: string) 
                 email: userEmail
             })
         });
-        if (!response.ok) {
+
+        if (response.response.success === false) {
             return {
                 succes: false,
                 status: response.status,
             }
         }
 
-        const data = await response;
+        const data = response.data;
 
         return {
             success: true,
             status: response.status,
-            conversationId: data.data.conversationId,
+            conversationId: data.conversationId,
         };
     } catch (error) {
         return {
@@ -225,7 +226,7 @@ export const handleDeleteConversation = async (conversationId: string) => {
             },
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la suppression de la conversation.');
         }
 
@@ -242,7 +243,7 @@ export const handleArchiveConversation = async (conversationId: string) => {
                 'Content-Type': 'application/json',
             },
         })
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de l\'archivage de la conversation.');
         }
         return response;
@@ -260,7 +261,7 @@ export const handleMuteConversationDuration = async (conversationId: string, dur
             },
             body: JSON.stringify({duration})
         })
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors du mute de la conversation.');
         }
 
@@ -278,7 +279,7 @@ export const handleUnmuteConversation = async (conversationId: string) => {
                 'Content-Type': 'application/json',
             },
         })
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors du unmute de la conversation.');
         }
         return response;

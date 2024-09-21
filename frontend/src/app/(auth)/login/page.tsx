@@ -22,7 +22,6 @@ export default function LoginPage() {
         const response = await HandleLogin(email, pwd);
         if (response.success) {
             setIsAuthenticated(true);
-
             const { userId, email: userEmail, isVerified } = response;
             setUser({ userId, email: userEmail, isVerified });
 

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import ItemList from "@/app/(chat)/components/item/ItemList";
+import ItemList from "@/app/(main)/(chat)/components/item/ItemList";
 import { Loader2 } from "lucide-react";
-import DMConversationItem from "@/app/(chat)/conversations/components/DMConversationItem";
+import DMConversationItem from "@/app/(main)/(chat)/conversations/components/DMConversationItem";
 import { useAuthContext } from "@/context/authContext";
-import { fetchUserConversations, getLastMessageFromUser } from "@/app/(chat)/conversations/actions";
-import StartNewConversation from "@/app/(chat)/conversations/components/StartNewConversation";
-import SearchBar from '@/app/(chat)/components/item/ItemSearchBar';
+import { fetchUserConversations, getLastMessageFromUser } from "@/app/(main)/(chat)/conversations/actions";
+import StartNewConversation from "@/app/(main)/(chat)/conversations/components/StartNewConversation";
+import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
 
 type Conversation = {
     id: string;
@@ -57,6 +57,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
 
             try {
                 const data = await fetchUserConversations(userId);
+
                 setConversations(data);
                 setFilteredConversations(data);
 

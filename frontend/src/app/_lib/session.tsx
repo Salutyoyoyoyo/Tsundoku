@@ -34,9 +34,9 @@ export async function decrypt(session: any) {
     }
 };
 
-export async function createSession(userData: any, token: string, refreshToken: string): Promise<void> {
+export async function createSession(userId: any, email: string, isVerified: boolean, token: string, refreshToken: string): Promise<void> {
     const expires = new Date(Date.now() + cookieConfig.duration);
-    const session = await encrypt({userData, token, refreshToken, expires});
+    const session = await encrypt({userId, email, isVerified, token, refreshToken, expires});
     cookies().set(cookieConfig.name, session, {expires, httpOnly: true});
 };
 

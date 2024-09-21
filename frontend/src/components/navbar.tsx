@@ -13,9 +13,7 @@ export default function Navbar() {
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                 <div className="flex items-center bg-gray-700 p-2 rounded-lg cursor-pointer">
-                    <img
-                        src="profile-image-url.jpg"
-                        alt="Profile"
+                    <div
                         className="w-8 h-8 rounded-full mr-2"
                     />
                     <span className="text-white">Anne Honyme</span>

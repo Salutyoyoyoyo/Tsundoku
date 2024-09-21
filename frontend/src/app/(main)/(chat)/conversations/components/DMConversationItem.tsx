@@ -10,7 +10,7 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 import {
     handleArchiveConversation,
     handleDeleteConversation, handleMuteConversationDuration, handleUnmuteConversation,
-} from "@/app/(chat)/conversations/actions";
+} from "@/app/(main)/(chat)/conversations/actions";
 import {toast} from "@/components/ui/use-toast";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
@@ -169,7 +169,7 @@ const DMConversationItem = ({
                                     </span>
                                 </HoverCardTrigger>
                                 <HoverCardContent className="text-xs">
-                                    Sourdine jusqu'au : {new Date(muteDuration).toLocaleString('fr-FR', {
+                                    Sourdine jusqu&apos;au : {new Date(muteDuration).toLocaleString('fr-FR', {
                                     day: '2-digit',
                                     month: '2-digit',
                                     year: 'numeric',

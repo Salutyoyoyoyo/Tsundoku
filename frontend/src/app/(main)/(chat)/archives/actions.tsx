@@ -32,11 +32,11 @@ export const fetchArchivedConversations = async (userId: string): Promise<Conver
             },
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Failed to fetch archived conversations.');
         }
 
-        const {data} = await response;
+        const data = response.data;
 
         if (data && data.conversations && Array.isArray(data.conversations)) {
             const flattenedConversations = data.conversations.flat();
@@ -59,7 +59,7 @@ export const handleUnarchiveConversation = async (conversationId: string) => {
         },
     });
 
-    if (!response.ok) {
+    if (!response.response) {
         throw new Error('Erreur lors de la désarchivage de la conversation.');
     }
 
@@ -78,7 +78,7 @@ export const handleUnarchiveAllConversations = async (userId: string) => {
             body: JSON.stringify({ userId }),
         });
 
-        if (!response.ok) {
+        if (!response.response) {
             throw new Error('Erreur lors de la désarchivage de toutes les conversations');
         }
 

@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "@/components/ui/button";
-import { sendMessage } from "@/app/(chat)/conversations/actions";
+import { sendMessage } from "@/app/(main)/(chat)/conversations/actions";
 import { useAuthContext } from "@/context/authContext";
 
 const chatMessageSchema = z.object({

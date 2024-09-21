@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import ItemList from "@/app/(chat)/components/item/ItemList";
-import ConversationFallBack from "@/app/(chat)/components/conversation/ConversationFallBack";
-import AddFriends from "@/app/(chat)/friends/components/AddFriends";
+import ItemList from "../components/item/ItemList";
+import ConversationFallBack from "../components/conversation/ConversationFallBack";
+import AddFriends from "./components/AddFriends";
 import { Loader2 } from "lucide-react";
-import FriendsList from "@/app/(chat)/friends/components/FriendsList";
+import FriendsList from "@/app/(main)/(chat)/friends/components/FriendsList";
 import { fetchFriendsList } from "./actions";
 import { useAuthContext } from "@/context/authContext";
-import SearchBar from "@/app/(chat)/components/item/ItemSearchBar";
+import SearchBar from "@/app/(main)/(chat)/components/item/ItemSearchBar";
 import {useRouter} from "next/navigation";
-import {startNewConversation} from "@/app/(chat)/conversations/actions";
+import {startNewConversation} from "@/app/(main)/(chat)/conversations/actions";
 import {toast} from "@/components/ui/use-toast";
 
 type Friend = {

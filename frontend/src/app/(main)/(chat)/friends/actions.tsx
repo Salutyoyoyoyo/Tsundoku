@@ -17,7 +17,7 @@ export async function fetchFriendsList(userId: number): Promise<Friend[]> {
             method: 'GET',
         });
 
-        if (response.ok && Array.isArray(response.data)) {
+        if (response.response && Array.isArray(response.data)) {
             return response.data;
         } else {
             return [];

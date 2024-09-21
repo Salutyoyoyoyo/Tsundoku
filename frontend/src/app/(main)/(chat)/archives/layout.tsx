@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import ArchivesConversationItem from '@/app/(chat)/archives/components/ArchivesConversationItem';
-import ItemList from '@/app/(chat)/components/item/ItemList';
-import {fetchArchivedConversations, handleUnarchiveAllConversations} from '@/app/(chat)/archives/actions';
+import ArchivesConversationItem from '@/app/(main)/(chat)/archives/components/ArchivesConversationItem';
+import ItemList from '@/app/(main)/(chat)/components/item/ItemList';
+import {fetchArchivedConversations, handleUnarchiveAllConversations} from '@/app/(main)/(chat)/archives/actions';
 import { useAuthContext } from '@/context/authContext';
-import { getLastMessageFromUser } from '@/app/(chat)/conversations/actions';
-import SearchBar from '@/app/(chat)/components/item/ItemSearchBar';
+import { getLastMessageFromUser } from '@/app/(main)/(chat)/conversations/actions';
+import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
 import {Checkbox} from "@/components/ui/checkbox";
 import {CheckedState} from "@radix-ui/react-checkbox";
 import {toast} from "@/components/ui/use-toast";

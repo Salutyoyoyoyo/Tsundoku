@@ -73,9 +73,6 @@ class ConversationController extends AbstractController
             $conversation->addParticipant($participant);
         }
 
-        $isGroup = count($participants) > 2;
-        $conversation->setIsGroup($isGroup);
-
         $this->entityManager->persist($conversation);
         $this->entityManager->flush();
 
@@ -102,7 +99,6 @@ class ConversationController extends AbstractController
                 'id' => $conversation->getId(),
                 'title' => $conversation->getTitle(),
                 'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
-                'isGroup' => $conversation->getIsGroup(),
                 'createdBy' => [
                     'id' => $conversation->getCreatedBy()->getId(),
                     'email' => $conversation->getCreatedBy()->getEmail(),
@@ -325,7 +321,6 @@ class ConversationController extends AbstractController
                 'id' => $conversation->getId(),
                 'title' => $conversation->getTitle(),
                 'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
-                'isGroup' => $conversation->getIsGroup(),
                 'createdBy' => [
                     'id' => $conversation->getCreatedBy()->getId(),
                     'email' => $conversation->getCreatedBy()->getEmail(),

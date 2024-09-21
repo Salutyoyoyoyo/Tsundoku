@@ -20,6 +20,7 @@ final class Version20240909111307 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE conversation ADD is_archived BOOLEAN DEFAULT false');
         $this->addSql('ALTER TABLE conversation ADD archived_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         $this->addSql('ALTER TABLE conversation ADD muted_until TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         $this->addSql('ALTER TABLE conversation ALTER is_archived DROP DEFAULT');

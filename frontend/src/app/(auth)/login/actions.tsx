@@ -20,7 +20,6 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
-
         if (!response.ok) {
             let errorMessage;
             if (400 === response.status) {

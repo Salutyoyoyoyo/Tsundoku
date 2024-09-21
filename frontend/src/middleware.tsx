@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { decrypt } from '@/app/_lib/session';
 
 export default async function middleware(req: NextRequest) {
-    const protectedRoutes = ['/', '/home'];
+    const protectedRoutes = ['/', '/home', '/friends', '/conversations', '/archives'];
     const currentPath = req.nextUrl.pathname;
     const isProtectedRoute = protectedRoutes.includes(currentPath);
 
@@ -15,16 +15,16 @@ export default async function middleware(req: NextRequest) {
         }
 
         const session = await decrypt(cookieValue);
-        if (!session?.userData) {
+
+        if (!session?.userId) {
             return NextResponse.redirect(new URL('/login', req.url));
         }
     }
 
     if (currentPath === '/login' && cookie?.value) {
         const session = await decrypt(cookie.value);
-        console.log(session)
-        if (session?.userData) {
-            return NextResponse.redirect(new URL('/', req.url));
+        if (session?.userId) {
+            return NextResponse.redirect(new URL('/home', req.url));
         }
     }
 

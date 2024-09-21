@@ -85,7 +85,6 @@ export const handleUnarchiveAllConversations = async (userId: string) => {
         return response;
 
     } catch (error) {
-        console.error('Erreur lors du désarchivage de toutes les conversations :', error);
         throw error;
     }
 };

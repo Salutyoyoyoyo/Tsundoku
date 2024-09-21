@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ItemList from "@/app/(main)/(chat)/components/item/ItemList";
-import { Loader2 } from "lucide-react";
+import {Loader2} from "lucide-react";
 import DMConversationItem from "@/app/(main)/(chat)/conversations/components/DMConversationItem";
-import { useAuthContext } from "@/context/authContext";
-import { fetchUserConversations, getLastMessageFromUser } from "@/app/(main)/(chat)/conversations/actions";
+import {useAuthContext} from "@/context/authContext";
+import {fetchUserConversations, getLastMessageFromUser} from "@/app/(main)/(chat)/conversations/actions";
 import StartNewConversation from "@/app/(main)/(chat)/conversations/components/StartNewConversation";
 import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
 
@@ -104,8 +104,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     const getLastMessageSenderName = (conversationId: string): string => {
-        const lastMessageSent = lastMessages[conversationId]?.senderEmail === user.email ? "Vous : " : lastMessages[conversationId]?.senderEmail || "Utilisateur inconnu";
-        return lastMessageSent;
+        return lastMessages[conversationId]?.senderEmail === user.email ? "Vous : " : lastMessages[conversationId]?.senderEmail || "Utilisateur inconnu";
     };
 
     const handleSearch = (searchTerm: string) => {

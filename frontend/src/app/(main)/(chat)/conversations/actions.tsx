@@ -71,7 +71,7 @@ export const fetchOneConversationById = async (conversationId: string): Promise<
         const data = response.data;
 
         if (data && data.participants && Array.isArray(data.participants)) {
-            const participants: Participant[] = data.participants.map((participant: {
+            return data.participants.map((participant: {
                 id: any;
                 userName: any;
                 email: any;
@@ -82,7 +82,6 @@ export const fetchOneConversationById = async (conversationId: string): Promise<
                 email: participant.email,
                 imageUrl: participant.imageUrl,
             }));
-            return participants;
         } else {
             return [];
         }

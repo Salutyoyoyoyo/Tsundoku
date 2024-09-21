@@ -25,7 +25,6 @@ type Props = {
 };
 
 const ChatInput = ({ conversationId, onNewMessage }: Props) => {
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const { user } = useAuthContext();
     const userEmail = user?.email;
 
@@ -77,7 +76,7 @@ const ChatInput = ({ conversationId, onNewMessage }: Props) => {
             onNewMessage(newMessage);
 
             form.reset();
-        }).catch((error) => {
+        }).catch(() => {
             toast({
                 variant: "destructive",
                 title: "Oh, oh ! Quelque chose a mal tourné.",

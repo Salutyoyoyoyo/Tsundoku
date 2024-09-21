@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import React, {useEffect, useState} from 'react';
+import {Loader2} from 'lucide-react';
 import ArchivesConversationItem from '@/app/(main)/(chat)/archives/components/ArchivesConversationItem';
 import ItemList from '@/app/(main)/(chat)/components/item/ItemList';
 import {fetchArchivedConversations, handleUnarchiveAllConversations} from '@/app/(main)/(chat)/archives/actions';
-import { useAuthContext } from '@/context/authContext';
-import { getLastMessageFromUser } from '@/app/(main)/(chat)/conversations/actions';
+import {useAuthContext} from '@/context/authContext';
+import {getLastMessageFromUser} from '@/app/(main)/(chat)/conversations/actions';
 import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
 import {Checkbox} from "@/components/ui/checkbox";
 import {CheckedState} from "@radix-ui/react-checkbox";
@@ -99,8 +99,7 @@ const ArchivesLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     const getLastMessageSenderName = (conversationId: string): string => {
-        const lastMessageSent = lastMessages[conversationId]?.senderEmail === user.email ? "Vous " : lastMessages[conversationId]?.senderEmail || "Utilisateur inconnu";
-        return lastMessageSent;
+        return lastMessages[conversationId]?.senderEmail === user.email ? "Vous " : lastMessages[conversationId]?.senderEmail || "Utilisateur inconnu";
     };
     const toggleSelectAll = (isChecked: CheckedState) => {
         if (isChecked) {
@@ -122,7 +121,7 @@ const ArchivesLayout = ({ children }: { children: React.ReactNode }) => {
     };
     const handleUnarchiveSelected = async (userId: string) => {
         try {
-            const response = await handleUnarchiveAllConversations(userId);
+            await handleUnarchiveAllConversations(userId);
 
             toast({
                 variant: "default",

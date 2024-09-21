@@ -71,9 +71,9 @@ const ArchivesConversationItem = ({ id, imageUrl, username, lastMessageContent, 
                     </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col flex-grow overflow-hidden">
+                    <h4 className="truncate font-semibold text-sm text-black">{username}</h4>
                     {lastMessageSender && lastMessageContent && (
                         <>
-                            <h4 className="truncate font-semibold text-sm text-black">{username}</h4>
                             <span className="text-xs text-gray-400 truncate overflow-hidden max-w-[200px]">
                                 <span>{lastMessageSender}: </span>
                                 <span className="truncate">{lastMessageContent}</span>
@@ -82,7 +82,7 @@ const ArchivesConversationItem = ({ id, imageUrl, username, lastMessageContent, 
                     )}
                 </div>
                 <div className="ml-auto flex-shrink-0">
-                    <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1">
                         {archivedAt && (
                             <span className="text-xs text-gray-400">
                                 <Badge className="text-[10px] font-light p-0.5">{formattedArchivedAt}</Badge>
@@ -90,7 +90,7 @@ const ArchivesConversationItem = ({ id, imageUrl, username, lastMessageContent, 
                         )}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <span className="text-xs cursor-pointer">
+                                <span className="text-xs cursor-pointer" onPointerDown={(event) => event.stopPropagation()}>
                                     <EllipsisVertical className="h-4 w-4" />
                                 </span>
                             </DropdownMenuTrigger>

@@ -190,7 +190,7 @@ const DMConversationItem = ({
                         )}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <span className="text-xs cursor-pointer" onClick={(event) => event.stopPropagation()}>
+                                <span className="text-xs cursor-pointer" onPointerDown={(event) => event.stopPropagation()}>
                                     <EllipsisVertical className="h-4 w-4"/>
                                 </span>
                             </DropdownMenuTrigger>

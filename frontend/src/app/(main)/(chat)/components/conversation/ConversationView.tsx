@@ -45,7 +45,6 @@ type FormattedMessage = {
 
 const ConversationView = ({conversationId, context = "active"}: Props) => {
     const [messages, setMessages] = useState<Message[]>([]);
-    const [isMarkedAsRead, setIsMarkedAsRead] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [participants, setParticipants] = useState<Participant[]>([]);
     const {user} = useAuthContext();
@@ -54,12 +53,18 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
 
     useEffect(() => {
         const fetchMessages = async () => {
+            setLoading(true);
+
             try {
                 const data = await fetchMessagesFromConversationId(conversationId);
-                const sortedMessages = data.reverse();
-                setMessages(sortedMessages);
+
+                if (Array.isArray(data)) {
+                    const sortedMessages = data.reverse();
+                    setMessages(sortedMessages);
+                } else {
+                    setMessages([]);
+                }
             } catch (error) {
-                console.error("Erreur lors du chargement des messages", error);
                 setMessages([]);
             } finally {
                 setLoading(false);
@@ -71,7 +76,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
                 const participantsData = await fetchOneConversationById(conversationId);
                 setParticipants(participantsData);
             } catch (error) {
-                console.error("Erreur lors du chargement des participants", error);
+                throw error;
             }
         };
 
@@ -84,37 +89,36 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
     };
 
     useEffect(() => {
-        if (messages.length > 0 && !isMarkedAsRead) {
-            const markMessagesAsRead = async () => {
-                try {
-                    const otherUserEmail = messages.find(msg => msg.sender_email !== userEmail)?.sender_email;
+        const markUnreadMessagesAsRead = async () => {
 
-                    if (!otherUserEmail) {
-                        console.error('Impossible de trouver l\'email de l\'autre utilisateur.');
-                        return;
-                    }
+            const otherParticipant = getOtherParticipant();
+            const otherUserEmail = otherParticipant?.email;
 
-                    const response = await fetchMarkMessagesAsRead(conversationId, otherUserEmail);
+            if (!otherUserEmail) return;
 
-                    if (response.ok) {
-                        setMessages((prevMessages) =>
-                            prevMessages.map((message) => ({
-                                ...message,
-                                isRead: true,
-                            }))
-                        );
-                        setIsMarkedAsRead(true);
-                    } else {
-                        console.error('Erreur lors de la mise à jour des messages comme lus :', response);
-                    }
-                } catch (error) {
-                    console.error("Erreur lors de la mise à jour des messages comme lus", error);
+            const unreadMessagesFromOtherUser = messages.filter(
+                (message) => message.sender_email === otherUserEmail && !message.isRead
+            );
+
+            if (unreadMessagesFromOtherUser.length > 0) {
+
+                const response = await fetchMarkMessagesAsRead(conversationId, otherUserEmail);
+                if (response.response) {
+                    setMessages((prevMessages) =>
+                        prevMessages.map((message) =>
+                            unreadMessagesFromOtherUser.includes(message)
+                                ? {...message, isRead: true}
+                                : message
+                        )
+                    );
+                } else {
+                    console.error("Erreur lors de la mise à jour du message comme lu :", response);
                 }
-            };
+            }
+        };
 
-            markMessagesAsRead();
-        }
-    }, [messages, userEmail, isMarkedAsRead, conversationId]);
+        markUnreadMessagesAsRead();
+    }, [messages, userEmail, conversationId]);
 
     const handleNewMessage = (newMessage: Message) => {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -139,6 +143,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
         createdAt: new Date(msg.send_at).getTime(),
         isCurrentUser: msg.sender_email === userEmail,
         type: "text",
+        isRead: msg.isRead,
     }));
 
     return (
@@ -147,6 +152,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
                 <Header name={otherParticipantName} imageUrl={otherParticipant?.imageUrl}/>
                 <div ref={messageContainerRef} className="flex-1 w-full overflow-y-auto flex flex-col-reverse">
                     <Body
+                        userEmail={userEmail}
                         messages={formattedMessages}
                         conversationId={conversationId}
                         setMessages={(newMessages) => setMessages(newMessages as unknown as Message[])}

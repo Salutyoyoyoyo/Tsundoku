@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {useState, useEffect, useRef, useCallback} from "react";
 import Message from "@/app/(main)/(chat)/conversations/[conversationId]/components/message/Message";
-import { Loader2 } from "lucide-react";
-import { fetchMessagesFromConversationId } from "@/app/(main)/(chat)/conversations/actions";
+import {Loader2} from "lucide-react";
+import {fetchMessagesFromConversationId} from "@/app/(main)/(chat)/conversations/actions";
 import ScrollToBottomButton from "@/components/ScrollToBottomButton";
 
 type Props = {
     messages: MessageType[];
     conversationId: string;
     setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
+    userEmail: string;
 };
 
 type MessageType = {
@@ -18,12 +19,15 @@ type MessageType = {
     createdAt: number;
     isCurrentUser: boolean;
     type: string;
+    isRead?: boolean;
 };
 
-const Body = ({ messages, conversationId, setMessages }: Props) => {
+const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
     const [page, setPage] = useState<number>(1);
+    const [newMessageSeen, setNewMessageSeen] = useState<boolean>(false);
+
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
     const loadMoreMessages = useCallback(async () => {
@@ -46,7 +50,7 @@ const Body = ({ messages, conversationId, setMessages }: Props) => {
     useEffect(() => {
         const handleScroll = async () => {
             if (messageContainerRef.current) {
-                const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+                const {scrollTop, scrollHeight, clientHeight} = messageContainerRef.current;
 
                 setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 10);
 
@@ -82,6 +86,10 @@ const Body = ({ messages, conversationId, setMessages }: Props) => {
         lastMessageByUser[message.senderId] = index;
     });
 
+    const firstUnreadMessageIndex = messages.findIndex(
+        (message) => message.senderId !== userEmail && !message.isRead
+    );
+
     return (
         <div
             ref={messageContainerRef}
@@ -89,32 +97,51 @@ const Body = ({ messages, conversationId, setMessages }: Props) => {
         >
             {loading && (
                 <div className="flex justify-center mb-2">
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin"/>
                 </div>
             )}
+
             {!isAtBottom && (
                 <ScrollToBottomButton
                     onClick={() => {
                         if (messageContainerRef.current) {
-                            messageContainerRef.current.scrollTo({ top: messageContainerRef.current.scrollHeight, behavior: 'smooth' });
+                            messageContainerRef.current.scrollTo({
+                                top: messageContainerRef.current.scrollHeight,
+                                behavior: 'smooth'
+                            });
                             setIsAtBottom(true);
                         }
                     }}
                 />
             )}
+
             {messages.map((message, index) => {
                 const isLastByUser = lastMessageByUser[message.senderId] === index;
+                const isLastByMessages = index === messages.length - 1;
+                const isRead = message.isRead;
 
                 return (
-                    <Message
-                        key={message._id}
-                        fromCurrentUser={message.isCurrentUser}
-                        senderName={message.senderName}
-                        lastByUser={isLastByUser}
-                        content={message.content}
-                        createdAt={message.createdAt}
-                        type={message.type}
-                    />
+                    <div key={message._id}>
+                        {!newMessageSeen && index === firstUnreadMessageIndex && message.senderId !== userEmail && (
+                            <div className="flex items-center py-2">
+                                <div className="flex-grow border-t border-red-500"></div>
+                                <div className="px-4 py-1 bg-red-500 text-white text-sm ">
+                                    Nouveau message
+                                </div>
+                                <div className="flex-grow border-t border-red-500"></div>
+                            </div>
+                        )}
+
+                        <Message
+                            fromCurrentUser={message.isCurrentUser}
+                            lastByUser={isLastByUser}
+                            content={message.content}
+                            createdAt={message.createdAt}
+                            type={message.type}
+                            lastByMessages={isLastByMessages}
+                            isRead={isRead}
+                        />
+                    </div>
                 );
             })}
         </div>

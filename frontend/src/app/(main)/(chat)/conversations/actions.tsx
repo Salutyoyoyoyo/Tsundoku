@@ -107,7 +107,16 @@ export const fetchMessagesFromConversationId = async (conversationId: string, pa
         const messages = response.data;
 
         if (Array.isArray(messages)) {
-            return messages;
+            return messages.map(message => {
+                if (message.image) {
+                    message.imageUrl = `${symfonyUrl}${message.image}`;
+                }
+
+                return {
+                    ...message,
+                    hasImage: !!message.imageUrl,
+                };
+            });
         } else {
             console.error("La réponse des messages n'est pas au format attendu : ", messages);
             return [];
@@ -133,7 +142,6 @@ export const getLastMessageFromUser = async (conversationId: string) => {
 
         return response;
     } catch (error) {
-        console.error('Erreur lors de la récupération des derniers messages :', error);
         return null;
     }
 };
@@ -153,7 +161,6 @@ export const sendMessage = async (payload: any, conversationId: string) => {
         }
         return response;
     } catch (error) {
-        console.error('Error sending message:', error);
         throw error;
     }
 };
@@ -174,7 +181,6 @@ export const fetchMarkMessagesAsRead = async (conversationId: string, userEmail:
 
         return response;
     } catch (error) {
-        console.error('Erreur lors de l\'appel API pour marquer les messages comme lus :', error);
         throw error;
     }
 };

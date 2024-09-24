@@ -2,17 +2,21 @@ import React from "react";
 import {format, isToday, isYesterday} from "date-fns";
 import {fr} from "date-fns/locale";
 import {cn} from "@/lib/utils";
+import Image from "next/image";
+import {CheckCheck} from "lucide-react";
 
 type Props = {
     fromCurrentUser: boolean;
-    senderName: string;
     lastByUser: boolean;
+    lastByMessages: boolean;
     content: string[];
     createdAt: number;
     type: string;
+    imageUrl?: string;
+    isRead?: boolean;
 };
 
-const Message = ({fromCurrentUser, senderName, lastByUser, content, createdAt, type}: Props) => {
+const Message = ({fromCurrentUser, lastByUser, lastByMessages, content, createdAt, type, imageUrl, isRead}: Props) => {
     const formatTime = (timestamp: number) => {
         const date = new Date(timestamp);
 
@@ -40,20 +44,33 @@ const Message = ({fromCurrentUser, senderName, lastByUser, content, createdAt, t
                     "rounded-br-none": lastByUser && fromCurrentUser,
                     "rounded-bl-none": lastByUser && !fromCurrentUser
                 })}>
-                    {type === "text" ? (
+                    {type === "text" && (
                         <p className="text-wrap break-words whitespace-pre-wrap">
                             {content}
                         </p>
-                    ) : null}
+                    )}
+
+                    {type === "image" && imageUrl && (
+                        <div className="mt-2">
+                            <Image src={imageUrl} alt="Image du message" className="max-w-full h-auto rounded-lg"
+                                   width={48} height={48}/>
+                        </div>
+                    )}
                 </div>
-                    <span className={cn("text-xs ml-4 mr-4 ", {
-                        "text-gray-500": fromCurrentUser,
-                        "text-gray-400": !fromCurrentUser,
-                        "order-last": !fromCurrentUser,
-                        "order-first": fromCurrentUser
-                    })}>
-                        {formatTime(createdAt)}
+
+                <span className={cn("text-xs ml-4 mr-4", {
+                    "text-gray-500": fromCurrentUser,
+                    "text-gray-400": !fromCurrentUser,
+                    "order-last": !fromCurrentUser,
+                    "order-first": fromCurrentUser
+                })}>
+                    {formatTime(createdAt)}
+                </span>
+                {fromCurrentUser && lastByUser && lastByMessages && isRead && (
+                    <span className="text-xs text-gray-400 mt-1 flex items-center justify-end">
+                        Vu <CheckCheck className="h-4 w-4 ml-1"/>
                     </span>
+                )}
             </div>
         </div>
     );

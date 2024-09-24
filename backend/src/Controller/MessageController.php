@@ -29,21 +29,27 @@ class MessageController extends AbstractController
     {
         try {
             $data = json_decode($request->getContent(), true);
+            $userEmail = $data['userEmail'] ?? null;
+            $messageContent = $data['message'] ?? null;
 
-            if (!$conversationId || empty($data['message']) || empty($data['userEmail'])) {
-                return new Response('Missing conversation ID, user email, or message content.', Response::HTTP_BAD_REQUEST);
+            if (empty($userEmail)) {
+                return new JsonResponse(['error' => 'User email is required'], Response::HTTP_BAD_REQUEST);
             }
 
-            $messageContent = $data['message'];
-            $userEmail = $data['userEmail'];
-            $createdBy = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
+            if (empty($messageContent)) {
+                return new JsonResponse(['error' => 'Message content is required'], Response::HTTP_BAD_REQUEST);
+            }
 
+            if (!$conversationId) {
+                return new Response('Missing conversation Id', Response::HTTP_BAD_REQUEST);
+            }
+
+            $createdBy = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
             if (!$createdBy) {
                 return new Response('User not found.', Response::HTTP_NOT_FOUND);
             }
 
             $conversation = $this->entityManager->getRepository(Conversation::class)->find($conversationId);
-
             if (!$conversation) {
                 return new Response('Conversation not found.', Response::HTTP_NOT_FOUND);
             }
@@ -51,6 +57,7 @@ class MessageController extends AbstractController
             if (!$conversation->getParticipants()->contains($createdBy)) {
                 return new JsonResponse('User is not a participant in this conversation.', Response::HTTP_FORBIDDEN);
             }
+
             $dateTime = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
             $formattedDate = $dateTime->format('Y-m-d H:i:s');
 
@@ -59,7 +66,8 @@ class MessageController extends AbstractController
                 'sender_email' => $userEmail,
                 'sent_by' => $createdBy->getProfiles()->first()->getUsername(),
                 'send_at' => $formattedDate,
-                'isRead' => false
+                'isRead' => false,
+                'isReadAt' => null
             ];
 
             $this->confRedisService->addMessageToConversation($conversationId, $messageData);
@@ -75,7 +83,6 @@ class MessageController extends AbstractController
     {
         try {
             $user = $this->getUser();
-
             if (!$user) {
                 return new JsonResponse('User not authenticated.', Response::HTTP_UNAUTHORIZED);
             }
@@ -102,7 +109,18 @@ class MessageController extends AbstractController
             $offset = ($page - 1) * $limit;
             $pagedMessages = array_slice($allMessages, $offset, $limit);
 
-            return $this->json($pagedMessages, Response::HTTP_OK);
+            $formattedMessages = array_map(function ($message) {
+                return [
+                    'content' => $message['content'],
+                    'image' => !empty($message['image']) ? $this->getParameter('uploads_directory') . $message['image'] : null,
+                    'sender_email' => $message['sender_email'],
+                    'sent_by' => $message['sent_by'],
+                    'send_at' => $message['send_at'],
+                    'isRead' => $message['isRead']
+                ];
+            }, $pagedMessages);
+
+            return new JsonResponse($formattedMessages, Response::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

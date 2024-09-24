@@ -31,16 +31,7 @@ type Props = {
     } | null;
 };
 
-const DMConversationItem = ({
-                                id,
-                                imageUrl,
-                                username,
-                                lastMessageContent,
-                                lastMessageSender,
-                                sentAt,
-                                isRead,
-                                isMutedUntil
-                            }: Props) => {
+const DMConversationItem = ({id, imageUrl, username, lastMessageContent, lastMessageSender, sentAt, isRead, isMutedUntil}: Props) => {
     const parsedDate = sentAt ? parseISO(sentAt) : null;
     const timeAgo = parsedDate ? formatDistanceToNow(parsedDate, {addSuffix: true, locale: fr}) : "";
 

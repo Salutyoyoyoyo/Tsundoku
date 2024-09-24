@@ -11,13 +11,26 @@ ENV_FILE=.env
 build:
 	$(COMPOSE) build
 
+start:
+	$(COMPOSE) start
+
+stop:
+	$(COMPOSE) stop
+
 up:
 	$(COMPOSE) up -d
 
 down:
 	$(COMPOSE) down
 
-restart: down up
+restart:
+	$(COMPOSE) down up
+
+docker-ps:
+	$(COMPOSE) ps
+
+images:
+	$(COMPOSE) images
 
 logs:
 	$(COMPOSE) logs -f
@@ -76,9 +89,13 @@ fixtures:
 
 # Use:
 # make build - build containers
+# make start - start containers
+# make stop - stop containers
 # make up - start containers
 # make down - stop containers
 # make restart - restart containers
+# make ps - show state of containers
+# make images - show list of images
 # make logs - display container logs
 # make php-sh - access the PHP container shell
 # make composer-sh - access the Composer container shell

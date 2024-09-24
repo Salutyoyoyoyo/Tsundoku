@@ -1,8 +1,8 @@
 import type {Metadata} from "next";
-import {Inter} from "next/font/google";
 import "./globals.css";
 import {AuthProvider} from "@/context/authContext";
 import {TooltipProvider} from "@/components/ui/tooltip";
+import {Toaster} from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
     title: "Tsundoku",
@@ -14,10 +14,11 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <html lang="en">
         <body>
         <AuthProvider>
-            <TooltipProvider>
-                {children}
-            </TooltipProvider>
+                <TooltipProvider>
+                    {children}
+                </TooltipProvider>
         </AuthProvider>
+        <Toaster/>
         </body>
         </html>
     );

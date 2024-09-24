@@ -18,6 +18,16 @@ const config = {
       },
     },
     extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#353a45',
+          foreground: '#ffffff',
+        },
+        secondary: {
+          DEFAULT: '#2c3648',
+          foreground: '#d2d5e9',
+        },
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

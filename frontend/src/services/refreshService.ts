@@ -1,6 +1,6 @@
-'use server'
+'use server';
 
-import {verifySession} from "@/app/_lib/session";
+import { verifySession } from "@/app/_lib/session";
 import {jwtDecode} from "jwt-decode";
 
 const symfonyUrl = process.env.SYMFONY_URL;
@@ -16,20 +16,19 @@ export const refreshAuthToken = async (refreshToken: unknown): Promise<string | 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({'refresh_token': refreshToken})
+            body: JSON.stringify({ 'refresh_token': refreshToken })
         });
 
         if (!response.ok) {
             throw new Error('Failed to refresh token');
-        };
+        }
 
         const data = await response.json();
-
         return data.token;
     } catch (error) {
+        console.error("Error refreshing token:", error);
         return null;
     }
-    ;
 };
 
 export const isTokenExpired = async (): Promise<unknown> => {
@@ -51,6 +50,7 @@ export const isTokenExpired = async (): Promise<unknown> => {
             return refreshToken;
         }
     } catch (error) {
+        console.error("Error checking token expiration:", error);
         return false;
     }
 };

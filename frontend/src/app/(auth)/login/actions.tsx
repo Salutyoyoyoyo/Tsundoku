@@ -1,6 +1,6 @@
 'use server';
 
-import {createSession} from '@/app/_lib/session';
+import { createSession } from '@/app/_lib/session';
 
 const symfonyUrl = process.env.SYMFONY_URL;
 
@@ -17,12 +17,28 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
     try {
         const response = await fetch(`${symfonyUrl}/api/login`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email, password}),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
         });
-
         if (!response.ok) {
-            throw response;
+            let errorMessage;
+            if (400 === response.status) {
+                errorMessage = 'Missing Email or Password';
+            } else if (401 === response.status) {
+                errorMessage = 'Unauthorized';
+            } else if (500 === response.status) {
+                errorMessage = 'No Server Response';
+            } else {
+                errorMessage = 'Login failed';
+            }
+
+            return {
+                success: false,
+                userId: 0,
+                email: "",
+                isVerified: false,
+                error: errorMessage
+            };
         }
 
         const data = await response.json();
@@ -37,33 +53,19 @@ export async function HandleLogin(email: string, password: string): Promise<Logi
 
         return {
             success: true,
-            userId: data.userId,
-            email: data.email,
-            isVerified: data.isVerified,
-            token: data.token,
+            userId: userId,
+            email: userEmail,
+            isVerified: isVerified,
+            token: token,
         };
 
-    } catch (error: any) {
-        let errorMessage;
-
-        if (error instanceof Response) {
-            if (400 === error?.status) {
-                errorMessage = 'Missing Email or Password';
-            } else if (401 === error?.status) {
-                errorMessage = 'Unauthorized';
-            } else if (500 === error?.status) {
-                errorMessage = 'No Server Response';
-            } else {
-                errorMessage = 'Login failed';
-            }
-        } else {
-            errorMessage = 'An unexpected error occurred';
-        }
-
+    } catch (error) {
         return {
-            email: "", isVerified: false, token: "", userId: 0,
             success: false,
-            error: errorMessage
+            userId: 0,
+            email: "",
+            isVerified: false,
+            error: 'An unexpected error occurred',
         };
     }
 }

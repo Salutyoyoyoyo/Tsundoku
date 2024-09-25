@@ -24,7 +24,7 @@ app.prepare().then(() => {
     io.on("connection", (socket) => {
         console.log(`Un utilisateur est connecté : ${socket.id}`);
 
-        socket.on('ping', (data) => {
+        socket.on('ping', () => {
             socket.emit('pong', { message: 'Hello from server' });
         });
 

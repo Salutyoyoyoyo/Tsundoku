@@ -3,6 +3,7 @@ import Message from "@/app/(main)/(chat)/conversations/[conversationId]/componen
 import {Loader2} from "lucide-react";
 import {fetchMessagesFromConversationId} from "@/app/(main)/(chat)/conversations/actions";
 import ScrollToBottomButton from "@/components/ScrollToBottomButton";
+import {useSocket} from "@/context/socketContext";
 
 type Props = {
     messages: MessageType[];
@@ -27,6 +28,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
     const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
     const [page, setPage] = useState<number>(1);
     const [newMessageSeen, setNewMessageSeen] = useState<boolean>(false);
+    const socket = useSocket();
 
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -89,6 +91,21 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
     const firstUnreadMessageIndex = messages.findIndex(
         (message) => message.senderId !== userEmail && !message.isRead
     );
+
+    useEffect(() => {
+        if (socket) {
+            socket.emit('joinRoom', conversationId);
+
+            socket.on('receive_msg', (data) => {
+                setMessages((prevMessages) => [...prevMessages, data]);
+            });
+
+            return () => {
+                socket.off('receive_msg');
+            };
+        }
+    }, [socket]);
+
 
     return (
         <div

@@ -8,6 +8,7 @@ import {useAuthContext} from "@/context/authContext";
 import {fetchUserConversations, getLastMessageFromUser} from "@/app/(main)/(chat)/conversations/actions";
 import StartNewConversation from "@/app/(main)/(chat)/conversations/components/StartNewConversation";
 import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
+import {useSocket} from "@/context/socketContext";
 
 type Conversation = {
     id: string;
@@ -46,6 +47,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
     }>({});
     const [loading, setLoading] = useState<boolean>(true);
     const { user } = useAuthContext();
+    const socket = useSocket();
     const userId = user?.userId;
 
     useEffect(() => {
@@ -86,6 +88,12 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
                 );
 
                 setLastMessages(updatedLastMessages);
+                if (socket) {
+                    data.forEach((conversation) => {
+                        socket.emit('joinRoom', conversation.id);
+                        console.log(`Utilisateur rejoint la room ${conversation.id}`);
+                    });
+                }
             } catch (error) {
                 console.error("Erreur lors du chargement des conversations", error);
             } finally {

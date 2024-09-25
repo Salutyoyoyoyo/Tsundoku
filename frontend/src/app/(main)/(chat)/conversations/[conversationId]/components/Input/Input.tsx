@@ -12,6 +12,7 @@ import {sendMessage} from "@/app/(main)/(chat)/conversations/actions";
 import {useAuthContext} from "@/context/authContext";
 import EmojiPicker, {EmojiClickData} from 'emoji-picker-react';
 import {Smile} from "lucide-react";
+import {useSocket} from "@/context/socketContext";
 
 const chatMessageSchema = z.object({
     content: z.string().optional(),
@@ -25,6 +26,7 @@ type Props = {
 const ChatInput = ({conversationId, onNewMessage}: Props) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const {user} = useAuthContext();
+    const socket = useSocket();
     const userEmail = user?.email;
 
     const createMessage = async (payload: any) => {
@@ -32,6 +34,16 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
             const response = await sendMessage(payload, conversationId);
             if (!response.response) {
                 throw new Error('Failed to send message');
+            }
+
+            if (socket) {
+                socket.emit('send_msg', {
+                    roomId: conversationId,
+                    content: payload.message,
+                    sent_by: payload.userEmail,
+                    send_at: new Date().toISOString(),
+                    sender_email: userEmail,
+                });
             }
 
             return response;
@@ -68,14 +80,6 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
             message: values.content,
             userEmail: userEmail,
         }).then(() => {
-            const newMessage = {
-                content: values.content,
-                sent_by: userEmail,
-                send_at: new Date().toISOString(),
-                sender_email: userEmail,
-            };
-
-            onNewMessage(newMessage);
 
             form.reset();
         }).catch((err) => {

@@ -9,6 +9,7 @@ import {fetchUserConversations, getLastMessageFromUser} from "@/app/(main)/(chat
 import StartNewConversation from "@/app/(main)/(chat)/conversations/components/StartNewConversation";
 import SearchBar from '@/app/(main)/(chat)/components/item/ItemSearchBar';
 import {useSocket} from "@/context/socketContext";
+import {useParams} from 'next/navigation';
 
 type Conversation = {
     id: string;
@@ -33,7 +34,8 @@ type Conversation = {
     } | null;
 };
 
-const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
+const ConversationLayout = ({children}: { children: React.ReactNode }) => {
+    const [loading, setLoading] = useState<boolean>(true);
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
     const [lastMessages, setLastMessages] = useState<{
@@ -41,14 +43,17 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
             senderEmail: string;
             content: string;
             senderName: string;
-            sentAt: string;
+            sent_at: string;
             isRead: boolean;
         }
     }>({});
-    const [loading, setLoading] = useState<boolean>(true);
-    const { user } = useAuthContext();
+
+    const {user} = useAuthContext();
     const socket = useSocket();
     const userId = user?.userId;
+
+    const params = useParams();
+    const activeConversationId = params?.conversationId;
 
     useEffect(() => {
         const fetchConversationsData = async () => {
@@ -57,52 +62,100 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
                 return;
             }
 
-            try {
-                const data = await fetchUserConversations(userId);
+            const data = await fetchUserConversations(userId);
 
-                setConversations(data);
-                setFilteredConversations(data);
+            setConversations(data);
+            setFilteredConversations(data);
 
-                const updatedLastMessages: {
-                    [key: string]: {
-                        content: string;
-                        senderName: string,
-                        senderEmail: string,
-                        sentAt: string,
-                        isRead: boolean
-                    }
-                } = {};
-                await Promise.all(
-                    data.map(async (conversation) => {
-                        const lastMessageData = await getLastMessageFromUser(conversation.id);
-                        if (lastMessageData && lastMessageData.data?.lastMessage) {
-                            updatedLastMessages[conversation.id] = {
-                                content: lastMessageData.data?.lastMessage.content,
-                                senderName: lastMessageData.data?.lastMessage.sent_by,
-                                senderEmail: lastMessageData.data?.lastMessage.sender_email,
-                                sentAt: lastMessageData.data?.lastMessage.send_at,
-                                isRead: lastMessageData.data?.lastMessage.isRead,
-                            };
-                        }
-                    })
-                );
-
-                setLastMessages(updatedLastMessages);
-                if (socket) {
-                    data.forEach((conversation) => {
-                        socket.emit('joinRoom', conversation.id);
-                        console.log(`Utilisateur rejoint la room ${conversation.id}`);
-                    });
+            const updatedLastMessages: {
+                [key: string]: {
+                    content: string;
+                    senderName: string;
+                    senderEmail: string;
+                    sent_at: string;
+                    isRead: boolean;
                 }
-            } catch (error) {
-                console.error("Erreur lors du chargement des conversations", error);
-            } finally {
-                setLoading(false);
+            } = {};
+
+            await Promise.all(
+                data.map(async (conversation) => {
+                    const lastMessageData = await getLastMessageFromUser(conversation.id);
+                    if (lastMessageData && lastMessageData.data?.lastMessage) {
+                        const { content, sent_by, sender_email, sent_at, isRead } = lastMessageData.data.lastMessage;
+                        updatedLastMessages[conversation.id] = {
+                            content,
+                            senderName: sent_by,
+                            senderEmail: sender_email,
+                            sent_at: sent_at,
+                            isRead,
+                        };
+                    }
+                })
+            );
+
+            setLastMessages(updatedLastMessages);
+
+            if (socket) {
+                socket.emit('joinRoom', activeConversationId);
+
+                socket.on('receive_msg', (data) => {
+                    const { roomId, content, userId, sent_at, sent_by } = data;
+
+                    if (roomId !== activeConversationId) {
+                        setLastMessages((prevMessages) => ({
+                            ...prevMessages,
+                            [roomId]: {
+                                userId: userId,
+                                content,
+                                sent_by: sent_by,
+                                senderName: sent_by === user?.email ? 'Vous : ' : sent_by,
+                                sent_at: sent_at,
+                                isRead: false,
+                            },
+                        }));
+                    } else {
+                        setLastMessages((prevMessages) => ({
+                            ...prevMessages,
+                            [roomId]: {
+                                userId: userId,
+                                content,
+                                sent_by: sent_by,
+                                senderName: sent_by === user?.email ? 'Vous : ' : sent_by,
+                                sent_at: sent_at,
+                                isRead: true,
+                            },
+                        }));
+                    }
+                });
+
+                return () => {
+                    socket.off('receive_msg');
+                };
             }
         };
 
         fetchConversationsData();
-    }, [userId]);
+    }, [userId, socket, activeConversationId]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('conversationRead', (data: { conversationId: string, userId: string }) => {
+                const { conversationId } = data;
+
+                setLastMessages((prevMessages) => ({
+                    ...prevMessages,
+                    [conversationId]: {
+                        ...prevMessages[conversationId],
+                        isRead: true,
+                    },
+                }));
+            });
+
+            return () => {
+                socket.off('conversationRead');
+            };
+        }
+    }, [socket, user, setLastMessages]);
 
     const getOtherMember = (conversation: Conversation) => {
         if (Array.isArray(conversation.participants)) {
@@ -112,7 +165,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     const getLastMessageSenderName = (conversationId: string): string => {
-        return lastMessages[conversationId]?.senderEmail === user.email ? "Vous : " : lastMessages[conversationId]?.senderEmail || "Utilisateur inconnu";
+        return lastMessages[conversationId]?.senderEmail === user?.email ? "Vous : " : lastMessages[conversationId]?.senderName || "Utilisateur inconnu";
     };
 
     const handleSearch = (searchTerm: string) => {
@@ -149,7 +202,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
                         .map(conversation => {
                             const otherMember = getOtherMember(conversation);
                             const lastMessageContent = lastMessages[conversation.id]?.content || "";
-                            const sentAt = lastMessages[conversation.id]?.sentAt;
+                            const sentAt = lastMessages[conversation.id]?.sent_at;
                             const isRead = lastMessages[conversation.id]?.isRead;
 
                             return (
@@ -161,7 +214,7 @@ const ConversationLayout = ({ children }: { children: React.ReactNode }) => {
                                     lastMessageContent={lastMessageContent}
                                     lastMessageSender={getLastMessageSenderName(conversation.id)}
                                     sentAt={sentAt}
-                                    isRead={isRead || false}
+                                    isRead={isRead}
                                     isMutedUntil={conversation.isMutedUntil}
                                 />
                             );

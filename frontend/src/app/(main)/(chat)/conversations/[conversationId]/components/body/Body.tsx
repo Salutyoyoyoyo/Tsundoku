@@ -17,7 +17,7 @@ type MessageType = {
     content: string[];
     senderName: string;
     senderId: string;
-    createdAt: number;
+    sent_at: string;
     isCurrentUser: boolean;
     type: string;
     isRead?: boolean;
@@ -27,10 +27,26 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
     const [page, setPage] = useState<number>(1);
-    const [newMessageSeen, setNewMessageSeen] = useState<boolean>(false);
     const socket = useSocket();
 
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (socket && conversationId) {
+
+            socket.emit('joinRoom', conversationId);
+
+            socket.on('receive_msg', (data) => {
+                const { roomId } = data;
+                if (roomId === conversationId) {
+                    setMessages((prevMessages) => [...prevMessages, data]);
+                }
+            });
+            return () => {
+                socket.off('receive_msg');
+            };
+        }
+    }, [socket]);
 
     const loadMoreMessages = useCallback(async () => {
         if (loading) return;
@@ -92,21 +108,6 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
         (message) => message.senderId !== userEmail && !message.isRead
     );
 
-    useEffect(() => {
-        if (socket) {
-            socket.emit('joinRoom', conversationId);
-
-            socket.on('receive_msg', (data) => {
-                setMessages((prevMessages) => [...prevMessages, data]);
-            });
-
-            return () => {
-                socket.off('receive_msg');
-            };
-        }
-    }, [socket]);
-
-
     return (
         <div
             ref={messageContainerRef}
@@ -139,7 +140,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
 
                 return (
                     <div key={message._id}>
-                        {!newMessageSeen && index === firstUnreadMessageIndex && message.senderId !== userEmail && (
+                        {(index === firstUnreadMessageIndex && message.senderId !== userEmail) ? (
                             <div className="flex items-center py-2">
                                 <div className="flex-grow border-t border-red-500"></div>
                                 <div className="px-4 py-1 bg-red-500 text-white text-sm ">
@@ -147,13 +148,13 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
                                 </div>
                                 <div className="flex-grow border-t border-red-500"></div>
                             </div>
-                        )}
+                        ) : null }
 
                         <Message
                             fromCurrentUser={message.isCurrentUser}
                             lastByUser={isLastByUser}
                             content={message.content}
-                            createdAt={message.createdAt}
+                            sent_at={message.sent_at}
                             type={message.type}
                             lastByMessages={isLastByMessages}
                             isRead={isRead}

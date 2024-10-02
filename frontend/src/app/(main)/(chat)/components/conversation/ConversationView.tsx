@@ -12,6 +12,7 @@ import {
 } from "@/app/(main)/(chat)/conversations/actions";
 import Body from "@/app/(main)/(chat)/conversations/[conversationId]/components/body/Body";
 import {useAuthContext} from "@/context/authContext";
+import {useSocket} from "@/context/socketContext";
 
 type Props = {
     conversationId: string;
@@ -21,7 +22,7 @@ type Props = {
 type Message = {
     content: string;
     sent_by: string;
-    send_at: string;
+    sent_at: string;
     sender_email: string;
     isRead: boolean;
 };
@@ -38,7 +39,7 @@ type FormattedMessage = {
     content: string[];
     senderName: string;
     senderId: string;
-    createdAt: number;
+    sent_at: string;
     isCurrentUser: boolean;
     type: string;
 };
@@ -47,9 +48,12 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [participants, setParticipants] = useState<Participant[]>([]);
+
     const {user} = useAuthContext();
+    const socket = useSocket();
     const userEmail = user?.email;
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
+
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -64,6 +68,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
                 } else {
                     setMessages([]);
                 }
+
             } catch (error) {
                 setMessages([]);
             } finally {
@@ -111,6 +116,14 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
                                 : message
                         )
                     );
+
+                    if (socket) {
+                        socket.emit('markAsRead', {
+                            conversationId: conversationId,
+                            userId: user?.userId
+                        });
+                    }
+
                 } else {
                     console.error("Erreur lors de la mise à jour du message comme lu :", response);
                 }
@@ -118,7 +131,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
         };
 
         markUnreadMessagesAsRead();
-    }, [messages, userEmail, conversationId]);
+    }, [socket, messages, userEmail, conversationId]);
 
     const handleNewMessage = (newMessage: Message) => {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -140,7 +153,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
         content: [msg.content],
         senderName: msg.sent_by,
         senderId: msg.sent_by,
-        createdAt: new Date(msg.send_at).getTime(),
+        sent_at: msg.sent_at,
         isCurrentUser: msg.sender_email === userEmail,
         type: "text",
         isRead: msg.isRead,

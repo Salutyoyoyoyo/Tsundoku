@@ -1,20 +1,20 @@
-import React, {useState} from "react";
-import {Card} from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {ArchiveRestore, BellOff, EllipsisVertical, Trash2, User} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-import {formatDistanceToNow, parseISO} from "date-fns";
-import {fr} from "date-fns/locale";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArchiveRestore, BellOff, EllipsisVertical, Trash2, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
     handleArchiveConversation,
     handleDeleteConversation, handleMuteConversationDuration, handleUnmuteConversation,
 } from "@/app/(main)/(chat)/conversations/actions";
-import {toast} from "@/components/ui/use-toast";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Button} from "@/components/ui/button";
-import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
+import { toast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 type Props = {
     id: string;
@@ -31,14 +31,15 @@ type Props = {
     } | null;
 };
 
-const DMConversationItem = ({id, imageUrl, username, lastMessageContent, lastMessageSender, sentAt, isRead, isMutedUntil}: Props) => {
+const DMConversationItem = ({ id, imageUrl, username, lastMessageContent, lastMessageSender, sentAt, isRead, isMutedUntil }: Props) => {
+    const [openMuteDialog, setOpenMuteDialog] = useState(false);
+
     const parsedDate = sentAt ? parseISO(sentAt) : null;
-    const timeAgo = parsedDate ? formatDistanceToNow(parsedDate, {addSuffix: true, locale: fr}) : "";
+    const timeAgo = parsedDate ? formatDistanceToNow(parsedDate, { addSuffix: true, locale: fr }) : "";
 
     const isLastMessageFromCurrentUser = lastMessageSender === "Vous : ";
     const displayReadStatus = isLastMessageFromCurrentUser ? true : isRead;
 
-    const [openMuteDialog, setOpenMuteDialog] = useState(false);
     const isMuted = isMutedUntil && new Date(isMutedUntil.date) > new Date();
     const muteDuration = isMutedUntil ? new Date(isMutedUntil.date).toLocaleString() : "Inconnue";
 
@@ -156,7 +157,7 @@ const DMConversationItem = ({id, imageUrl, username, lastMessageContent, lastMes
                             <HoverCard>
                                 <HoverCardTrigger asChild>
                                     <span className="text-gray-400 cursor-pointer">
-                                            <BellOff className="items-center w-5 h-5 mr-2 font-light p-0.5"/>
+                                        <BellOff className="items-center w-5 h-5 mr-2 font-light p-0.5"/>
                                     </span>
                                 </HoverCardTrigger>
                                 <HoverCardContent className="text-xs">

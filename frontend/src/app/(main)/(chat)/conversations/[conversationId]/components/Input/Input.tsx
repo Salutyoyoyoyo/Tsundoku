@@ -47,13 +47,8 @@ const ChatInput = ({conversationId}: Props) => {
                 socket.on('typing', (userId));
 
                 socket.on('stopTyping', (userId));
-
-                return () => {
-                    socket.off('receive_msg');
-                    socket.off('typing');
-                    socket.off('stopTyping');
-                };
             }
+
             return await sendMessage(payload, conversationId);
         } catch (error) {
             throw error;

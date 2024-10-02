@@ -21,13 +21,13 @@ class ConversationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Conversation::class);
     }
-    public function findByUser(User $user)
+    public function findConversationsByUserOrderedByLastMessage(User $user): array
     {
         return $this->createQueryBuilder('c')
-            ->innerJoin('c.participants', 'p')
-            ->where('p.id = :userId')
-            ->setParameter('userId', $user->getId())
-            ->distinct()
+            ->join('c.participants', 'p')
+            ->where('p = :user')
+            ->orderBy('c.lastMessageAt', 'ASC')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
     }

@@ -37,7 +37,6 @@ type Conversation = {
 const ConversationLayout = ({children}: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
     const [lastMessages, setLastMessages] = useState<{
         [key: string]: {
             senderEmail: string;
@@ -65,7 +64,6 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
             const data = await fetchUserConversations(userId);
 
             setConversations(data);
-            setFilteredConversations(data);
 
             const updatedLastMessages: {
                 [key: string]: {
@@ -125,6 +123,16 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
                                 isRead: true,
                             },
                         }));
+                        setConversations((prevConversations) => {
+                            const conversationIndex = prevConversations.findIndex(c => String(c.id) === String(roomId));
+                            if (conversationIndex > -1) {
+                                const updatedConversations = [...prevConversations];
+                                const [movedConversation] = updatedConversations.splice(conversationIndex, 1);
+                                updatedConversations.unshift(movedConversation);
+                                return updatedConversations;
+                            }
+                            return prevConversations;
+                        });
                     }
                 });
 
@@ -169,8 +177,9 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
     };
 
     const handleSearch = (searchTerm: string) => {
-        if (searchTerm) {
-            const filtered = conversations.filter(conversation => {
+        setConversations((prevConversations) => {
+            if (!searchTerm) return prevConversations;
+            return prevConversations.filter((conversation) => {
                 const otherMember = getOtherMember(conversation);
                 const lastMessageContent = lastMessages[conversation.id]?.content || "";
                 return (
@@ -178,10 +187,7 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
                     lastMessageContent.toLowerCase().includes(searchTerm.toLowerCase())
                 );
             });
-            setFilteredConversations(filtered);
-        } else {
-            setFilteredConversations(conversations);
-        }
+        });
     };
 
     return (
@@ -192,20 +198,18 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
                     <div className="flex justify-center">
                         <Loader2 className="h-8 w-8 animate-spin" />
                     </div>
-                ) : filteredConversations.length === 0 ? (
+                ) : conversations.length === 0 ? (
                     <p className="w-full h-full flex items-center justify-center">
                         Pas de conversation trouvée
                     </p>
                 ) : (
-                    filteredConversations
-                        .filter(conversation => !conversation.isArchived)
-                        .map(conversation => {
-                            const otherMember = getOtherMember(conversation);
-                            const lastMessageContent = lastMessages[conversation.id]?.content || "";
-                            const sentAt = lastMessages[conversation.id]?.sent_at;
-                            const isRead = lastMessages[conversation.id]?.isRead;
+                    conversations.map((conversation, index) => {
+                        const otherMember = getOtherMember(conversation);
+                        const lastMessageContent = lastMessages[conversation.id]?.content || "";
+                        const sentAt = lastMessages[conversation.id]?.sent_at;
+                        const isRead = lastMessages[conversation.id]?.isRead;
 
-                            return (
+                        return (
                                 <DMConversationItem
                                     key={conversation.id}
                                     id={conversation.id}
@@ -217,8 +221,8 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
                                     isRead={isRead}
                                     isMutedUntil={conversation.isMutedUntil}
                                 />
-                            );
-                        })
+                        );
+                    })
                 )}
             </ItemList>
             {children}

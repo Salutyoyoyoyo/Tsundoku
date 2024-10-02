@@ -65,7 +65,7 @@ class MessageController extends AbstractController
                 'content' => $messageContent,
                 'sender_email' => $userEmail,
                 'sent_by' => $createdBy->getProfiles()->first()->getUsername(),
-                'send_at' => $formattedDate,
+                'sent_at' => $formattedDate,
                 'isRead' => false,
                 'isReadAt' => null
             ];
@@ -109,18 +109,8 @@ class MessageController extends AbstractController
             $offset = ($page - 1) * $limit;
             $pagedMessages = array_slice($allMessages, $offset, $limit);
 
-            $formattedMessages = array_map(function ($message) {
-                return [
-                    'content' => $message['content'],
-                    'image' => !empty($message['image']) ? $this->getParameter('uploads_directory') . $message['image'] : null,
-                    'sender_email' => $message['sender_email'],
-                    'sent_by' => $message['sent_by'],
-                    'send_at' => $message['send_at'],
-                    'isRead' => $message['isRead']
-                ];
-            }, $pagedMessages);
 
-            return new JsonResponse($formattedMessages, Response::HTTP_OK);
+            return new JsonResponse($pagedMessages, Response::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

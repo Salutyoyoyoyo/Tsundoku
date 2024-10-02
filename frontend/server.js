@@ -33,6 +33,11 @@ app.prepare().then(() => {
             console.log(`Utilisateur ${socket.id} a rejoint la room ${roomId}`);
         });
 
+        socket.on('leaveRoom', (roomId) => {
+            socket.leave(roomId);
+            console.log(`Client ${socket.id} a quitté la room ${roomId}`);
+        });
+
         socket.on("send_msg", (data) => {
             console.log(`Message reçu de ${data.userEmail} dans la room ${data.roomId}: ${data.content}`);
             console.log('data.roomId :', data.roomId);
@@ -42,10 +47,10 @@ app.prepare().then(() => {
 
         });
 
-        socket.on('user_seen_message', ({ roomId, userId }) => {
-            console.log('un user a vu les messages')
-            socket.to(roomId).emit('message_seen', { roomId, userId });
-            console.log(`L'utilisateur ${userId} a vu les messages dans la room ${roomId}`);
+        socket.on('markAsRead', ({ conversationId, userId }) => {
+            console.log(`Marquer la conversation ${conversationId} comme lue pour l'utilisateur ${userId}`);
+
+            io.to(conversationId).emit('conversationRead', { conversationId, userId });
         });
 
         socket.on("disconnect", () => {

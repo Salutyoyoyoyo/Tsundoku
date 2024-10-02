@@ -3,7 +3,7 @@ import {Card} from "@/components/ui/card";
 import {z} from "zod";
 import {useMutationState} from "@/hooks/useMutationState";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm, FormProvider} from "react-hook-form";
+import {FormProvider, useForm} from "react-hook-form";
 import {toast} from "@/components/ui/use-toast";
 import {FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
 import TextareaAutosize from "react-textarea-autosize";
@@ -20,14 +20,16 @@ const chatMessageSchema = z.object({
 
 type Props = {
     conversationId: string;
-    onNewMessage: (message: any) => void;
 };
 
-const ChatInput = ({conversationId, onNewMessage}: Props) => {
+const ChatInput = ({conversationId}: Props) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
     const {user} = useAuthContext();
     const socket = useSocket();
     const userEmail = user?.email;
+    const userId = user?.userId;
 
     const createMessage = async (payload: any) => {
         try {
@@ -41,10 +43,18 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
                     sent_by: payload.userEmail,
                     sent_at: new Date().toISOString(),
                 });
-            }
-            const response = await sendMessage(payload, conversationId);
 
-            return response;
+                socket.on('typing', (userId));
+
+                socket.on('stopTyping', (userId));
+
+                return () => {
+                    socket.off('receive_msg');
+                    socket.off('typing');
+                    socket.off('stopTyping');
+                };
+            }
+            return await sendMessage(payload, conversationId);
         } catch (error) {
             throw error;
         }
@@ -70,6 +80,25 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
         if (selectionStart !== null) {
             form.setValue("content", value);
         }
+
+        if (socket && value.trim() !== "") {
+
+            if (!isTyping) {
+                socket.emit("typing", {roomId: conversationId, userId});
+                setIsTyping(true);
+            }
+
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+
+            const timeoutId = setTimeout(() => {
+                socket.emit("stopTyping", {roomId: conversationId, userId});
+                setIsTyping(false);
+            }, 3000);
+
+            setTypingTimeout(timeoutId);
+        }
     };
 
     const handleSubmit = async (values: z.infer<typeof chatMessageSchema>) => {
@@ -78,7 +107,7 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
             userEmail: userEmail,
         }).then(() => {
             form.reset();
-        }).catch((err) => {
+        }).catch(() => {
             toast({
                 variant: "destructive",
                 title: "Oh, oh ! Quelque chose a mal tourné.",

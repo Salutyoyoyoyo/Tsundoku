@@ -25,36 +25,33 @@ app.prepare().then(() => {
         console.log(`Un utilisateur est connecté : ${socket.id}`);
 
         socket.on('ping', () => {
-            socket.emit('pong', { message: 'Hello from server' });
+            socket.emit('pong', {message: 'Hello from server'});
         });
 
         socket.on("joinRoom", (roomId) => {
             socket.join(roomId);
-            console.log(`Utilisateur ${socket.id} a rejoint la room ${roomId}`);
         });
 
         socket.on('leaveRoom', (roomId) => {
             socket.leave(roomId);
-            console.log(`Client ${socket.id} a quitté la room ${roomId}`);
         });
 
         socket.on("send_msg", (data) => {
-            console.log(`Message reçu de ${data.userEmail} dans la room ${data.roomId}: ${data.content}`);
-            console.log('data.roomId :', data.roomId);
-
             io.to(data.roomId).emit("receive_msg", data);
-            console.log(`Événement "receive_msg" émis dans la room ${data.roomId} avec le message: ${data.content}`);
-
         });
 
-        socket.on('markAsRead', ({ conversationId, userId }) => {
-            console.log(`Marquer la conversation ${conversationId} comme lue pour l'utilisateur ${userId}`);
-
-            io.to(conversationId).emit('conversationRead', { conversationId, userId });
+        socket.on('markAsRead', ({conversationId, userId}) => {
+            io.to(conversationId).emit('conversationRead', {conversationId, userId});
         });
 
+        socket.on("typing", ({roomId, userId}) => {
+            socket.to(roomId).emit("typing", {userId});
+        });
+
+        socket.on("stopTyping", ({roomId, userId}) => {
+            socket.to(roomId).emit("stopTyping", {userId});
+        });
         socket.on("disconnect", () => {
-            console.log(`Utilisateur déconnecté : ${socket.id}`);
         });
     });
 

@@ -26,27 +26,41 @@ type MessageType = {
 const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
+    const [isOtherUserTyping, setIsOtherUserTyping] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const socket = useSocket();
-
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (socket && conversationId) {
-
             socket.emit('joinRoom', conversationId);
 
             socket.on('receive_msg', (data) => {
-                const { roomId } = data;
+                const {roomId} = data;
                 if (roomId === conversationId) {
                     setMessages((prevMessages) => [...prevMessages, data]);
                 }
             });
+
+            socket.on('typing', ({userId}: { userId: string }) => {
+                if (userId !== userEmail) {
+                    setIsOtherUserTyping(true);
+                }
+            });
+
+            socket.on('stopTyping', ({userId}: { userId: string }) => {
+                if (userId !== userEmail) {
+                    setIsOtherUserTyping(false);
+                }
+            });
+
             return () => {
                 socket.off('receive_msg');
+                socket.off('typing');
+                socket.off('stopTyping');
             };
         }
-    }, [socket]);
+    }, [socket, conversationId, userEmail]);
 
     const loadMoreMessages = useCallback(async () => {
         if (loading) return;
@@ -148,7 +162,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
                                 </div>
                                 <div className="flex-grow border-t border-red-500"></div>
                             </div>
-                        ) : null }
+                        ) : null}
 
                         <Message
                             fromCurrentUser={message.isCurrentUser}
@@ -162,6 +176,11 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
                     </div>
                 );
             })}
+
+            {isOtherUserTyping && (
+                <div className="px-2 text-gray-500 text-xs">est en train d'écrire...
+                </div>
+            )}
         </div>
     );
 };

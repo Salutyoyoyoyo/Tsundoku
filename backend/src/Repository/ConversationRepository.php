@@ -26,7 +26,7 @@ class ConversationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('c')
             ->join('c.participants', 'p')
             ->where('p = :user')
-            ->orderBy('c.lastMessageAt', 'ASC')
+            ->orderBy('c.lastMessageAt', 'DESC')
             ->setParameter('user', $user)
             ->getQuery()
             ->getResult();

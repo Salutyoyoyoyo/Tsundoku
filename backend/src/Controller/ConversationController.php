@@ -88,7 +88,8 @@ class ConversationController extends AbstractController
             return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $conversations = $this->entityManager->getRepository(Conversation::class)->findByUser($user);
+        $conversations = $this->entityManager->getRepository(Conversation::class)
+            ->findConversationsByUserOrderedByLastMessage($user);
 
         if (!$conversations) {
             return new JsonResponse(['conversations' => []], Response::HTTP_NOT_FOUND);
@@ -99,6 +100,7 @@ class ConversationController extends AbstractController
                 'id' => $conversation->getId(),
                 'title' => $conversation->getTitle(),
                 'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
+                'lastMessageAt' => $conversation->getLastMessageAt(),
                 'createdBy' => [
                     'id' => $conversation->getCreatedBy()->getId(),
                     'email' => $conversation->getCreatedBy()->getEmail(),
@@ -132,6 +134,7 @@ class ConversationController extends AbstractController
             'id' => $conversation->getId(),
             'title' => $conversation->getTitle(),
             'createdAt' => $conversation->getCreatedAt()->format('Y-m-d H:i:s'),
+            'lastMessageAt' => $conversation->getLastMessageAt(),
             'createdBy' => [
                 'id' => $conversation->getCreatedBy()->getId(),
                 'email' => $conversation->getCreatedBy()->getEmail(),

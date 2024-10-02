@@ -72,6 +72,11 @@ class MessageController extends AbstractController
 
             $this->confRedisService->addMessageToConversation($conversationId, $messageData);
 
+            $conversation->setLastMessageAt($dateTime);
+
+            $this->entityManager->persist($conversation);
+            $this->entityManager->flush();
+
             return new Response('Message sent to conversation.', Response::HTTP_OK);
         } catch (\Exception $e) {
             return new Response('An error occurred: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);

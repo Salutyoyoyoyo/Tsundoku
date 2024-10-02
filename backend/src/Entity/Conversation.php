@@ -44,6 +44,9 @@ class Conversation
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $mutedUntil = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastMessageAt = null;
+
     public function __construct()
     {
         $this->participants = new ArrayCollection();
@@ -176,6 +179,18 @@ class Conversation
     public function setMutedUntil(?\DateTimeInterface $mutedUntil): self
     {
         $this->mutedUntil = $mutedUntil;
+        return $this;
+    }
+
+    public function getLastMessageAt(): ?\DateTimeInterface
+    {
+        return $this->lastMessageAt;
+    }
+
+    public function setLastMessageAt(\DateTimeInterface $lastMessageAt): self
+    {
+        $this->lastMessageAt = $lastMessageAt;
+
         return $this;
     }
 }

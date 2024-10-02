@@ -10,15 +10,20 @@ type Props = {
     lastByUser: boolean;
     lastByMessages: boolean;
     content: string[];
-    createdAt: number;
+    sent_at: string;
     type: string;
     imageUrl?: string;
     isRead?: boolean;
 };
 
-const Message = ({fromCurrentUser, lastByUser, lastByMessages, content, createdAt, type, imageUrl, isRead}: Props) => {
-    const formatTime = (timestamp: number) => {
+const Message = ({fromCurrentUser, lastByUser, lastByMessages, content, sent_at, type, imageUrl, isRead}: Props) => {
+
+    const formatTime = (timestamp: string) => {
         const date = new Date(timestamp);
+        if (isNaN(date.getTime())) {
+            console.error('Date invalide:', timestamp);
+            return 'Date invalide';
+        }
 
         if (isToday(date)) {
             return format(date, "HH:mm");
@@ -64,7 +69,7 @@ const Message = ({fromCurrentUser, lastByUser, lastByMessages, content, createdA
                     "order-last": !fromCurrentUser,
                     "order-first": fromCurrentUser
                 })}>
-                    {formatTime(createdAt)}
+                    {formatTime(sent_at)}
                 </span>
                 {fromCurrentUser && lastByUser && lastByMessages && isRead && (
                     <span className="text-xs text-gray-400 mt-1 flex items-center justify-end">

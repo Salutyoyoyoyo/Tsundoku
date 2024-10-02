@@ -31,20 +31,18 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
 
     const createMessage = async (payload: any) => {
         try {
-            const response = await sendMessage(payload, conversationId);
-            if (!response.response) {
-                throw new Error('Failed to send message');
-            }
-
             if (socket) {
                 socket.emit('send_msg', {
                     roomId: conversationId,
+                    isRead: true,
+                    userId: user?.userId,
                     content: payload.message,
-                    sent_by: payload.userEmail,
-                    send_at: new Date().toISOString(),
                     sender_email: userEmail,
+                    sent_by: payload.userEmail,
+                    sent_at: new Date().toISOString(),
                 });
             }
+            const response = await sendMessage(payload, conversationId);
 
             return response;
         } catch (error) {
@@ -75,12 +73,10 @@ const ChatInput = ({conversationId, onNewMessage}: Props) => {
     };
 
     const handleSubmit = async (values: z.infer<typeof chatMessageSchema>) => {
-
         mutate({
             message: values.content,
             userEmail: userEmail,
         }).then(() => {
-
             form.reset();
         }).catch((err) => {
             toast({

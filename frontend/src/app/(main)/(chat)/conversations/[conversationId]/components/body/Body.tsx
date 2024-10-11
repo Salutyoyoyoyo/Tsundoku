@@ -178,7 +178,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
             })}
 
             {isOtherUserTyping && (
-                <div className="px-2 text-gray-500 text-xs">est en train d'écrire...
+                <div className="px-2 text-gray-500 text-xs">est en train d&apos;écrire...
                 </div>
             )}
         </div>

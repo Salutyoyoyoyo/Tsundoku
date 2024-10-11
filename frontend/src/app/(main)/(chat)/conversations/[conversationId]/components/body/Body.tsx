@@ -35,7 +35,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
         if (socket && conversationId) {
             socket.emit('joinRoom', conversationId);
 
-            socket.on('receive_msg', (data) => {
+            socket.on('receive_msg', (data: any) => {
                 const {roomId} = data;
                 if (roomId === conversationId) {
                     setMessages((prevMessages) => [...prevMessages, data]);
@@ -60,7 +60,7 @@ const Body = ({messages, conversationId, setMessages, userEmail}: Props) => {
                 socket.off('stopTyping');
             };
         }
-    }, [socket, conversationId, userEmail]);
+    }, [socket, conversationId, userEmail, isAtBottom, setMessages]);
 
     const loadMoreMessages = useCallback(async () => {
         if (loading) return;

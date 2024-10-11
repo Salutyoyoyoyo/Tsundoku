@@ -55,8 +55,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdAt = new \DateTime('now');
         $this->isVerified = false;
         $this->tokenRegistrationLifetime = (new \DateTime('now'))->add(new \DateInterval('P1D'));
-        $this->ResetPwdTokenLifetime = (new \DateTime('now'))->add(new \DateInterval('PT1H'));
-        $this->LastPasswordResetRequest = (new \DateTime('now'));
+        $this->resetPwdTokenLifetime = (new \DateTime('now'))->add(new \DateInterval('PT1H'));
+        $this->lastPasswordResetRequest = (new \DateTime('now'));
     }
 
     public function getId(): ?int

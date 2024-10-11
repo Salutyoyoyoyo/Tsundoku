@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef, useCallback} from "react";
 import ConversationContainer from "@/app/(main)/(chat)/components/conversation/ConversationContainer";
 import {Loader2} from "lucide-react";
 import Header from "@/app/(main)/(chat)/conversations/[conversationId]/components/header/Header";
@@ -54,7 +54,6 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
     const userEmail = user?.email;
     const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
-
     useEffect(() => {
         const fetchMessages = async () => {
             setLoading(true);
@@ -89,9 +88,9 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
         fetchParticipants();
     }, [conversationId]);
 
-    const getOtherParticipant = () => {
+    const getOtherParticipant = useCallback(() => {
         return participants.find(participant => participant.email !== userEmail);
-    };
+    }, [participants, userEmail]);
 
     useEffect(() => {
         const markUnreadMessagesAsRead = async () => {
@@ -131,11 +130,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
         };
 
         markUnreadMessagesAsRead();
-    }, [socket, messages, userEmail, conversationId]);
-
-    const handleNewMessage = (newMessage: Message) => {
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-    };
+    }, [socket, messages, userEmail, conversationId, getOtherParticipant, user?.userId]);
 
     if (loading) {
         return (
@@ -171,7 +166,7 @@ const ConversationView = ({conversationId, context = "active"}: Props) => {
                         setMessages={(newMessages) => setMessages(newMessages as unknown as Message[])}
                     />
                 </div>
-                <ChatInput conversationId={conversationId} onNewMessage={handleNewMessage}/>
+                <ChatInput conversationId={conversationId} />
             </ConversationContainer>
         </div>
     );

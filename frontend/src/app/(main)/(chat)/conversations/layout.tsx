@@ -96,7 +96,7 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
             if (socket) {
                 socket.emit('joinRoom', activeConversationId);
 
-                socket.on('receive_msg', (data) => {
+                socket.on('receive_msg', (data: any) => {
                     const { roomId, content, userId, sent_at, sent_by } = data;
 
                     if (roomId !== activeConversationId) {
@@ -143,7 +143,7 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
         };
 
         fetchConversationsData();
-    }, [userId, socket, activeConversationId]);
+    }, [userId, socket, activeConversationId, user?.email]);
 
     useEffect(() => {
         if (socket) {
@@ -210,17 +210,17 @@ const ConversationLayout = ({children}: { children: React.ReactNode }) => {
                         const isRead = lastMessages[conversation.id]?.isRead;
 
                         return (
-                                <DMConversationItem
-                                    key={conversation.id}
-                                    id={conversation.id}
-                                    username={otherMember?.userName || "Utilisateur inconnu"}
-                                    imageUrl={otherMember?.imageUrl || ""}
-                                    lastMessageContent={lastMessageContent}
-                                    lastMessageSender={getLastMessageSenderName(conversation.id)}
-                                    sentAt={sentAt}
-                                    isRead={isRead}
-                                    isMutedUntil={conversation.isMutedUntil}
-                                />
+                            <DMConversationItem
+                                key={conversation.id}
+                                id={conversation.id}
+                                username={otherMember?.userName || "Utilisateur inconnu"}
+                                imageUrl={otherMember?.imageUrl || ""}
+                                lastMessageContent={lastMessageContent}
+                                lastMessageSender={getLastMessageSenderName(conversation.id)}
+                                sentAt={sentAt}
+                                isRead={isRead}
+                                isMutedUntil={conversation.isMutedUntil}
+                            />
                         );
                     })
                 )}

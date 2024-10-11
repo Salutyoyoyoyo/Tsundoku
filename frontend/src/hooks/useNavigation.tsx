@@ -5,26 +5,24 @@ import {useMemo} from "react";
 export const useNavigation = () => {
     const pathname = usePathname();
 
-    const paths = useMemo(() => [
+    return useMemo(() => [
         {
             name: "Conversations",
             href: "/conversations",
-            icon: <MessagesSquare />,
+            icon: <MessagesSquare/>,
             active: pathname.startsWith("/conversations"),
         },
         {
             name: "Friends",
             href: "/friends",
             icon: <Users/>,
-            active: pathname === "/friends",
+            active: pathname.startsWith("/friends"),
         },
         {
             name: "Archives",
             href: "/archives",
-            icon: <Archive />,
+            icon: <Archive/>,
             active: pathname.startsWith("/archives"),
         }
     ], [pathname]);
-
-    return paths;
 };
